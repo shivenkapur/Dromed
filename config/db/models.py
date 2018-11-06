@@ -20,8 +20,7 @@ class Delivery(models.Model):
     weight = models.FloatField() 
     datetime= models.DateField() 
 
-    def __str__(self):
-        return self.name
+   
 
 class Item(models.Model):
 
@@ -36,8 +35,7 @@ class Item(models.Model):
     qty_avail = models.IntegerField()
     category = models.CharField(max_length=200, choices = CATEGORY_SET, default = IV)
 
-    def __str__(self):
-        return self.name
+  
 
 class Order(models.Model):
 
@@ -61,12 +59,11 @@ class Order(models.Model):
     orderNo = models.IntegerField()
     priority = models.CharField(max_length=200, choices = PRIORITY_SET, default = U)
     orderStatus = models.CharField(max_length=200, choices = ORDER_STATUS, default = 'QFP')
-    weight = models.FloatField() 
+    weight = models.FloatField(blank = True, null = True) 
     datetime= models.DateField() 
-
+    
+    items = models.ManyToManyField(Item)
     clinicManager_username = models.ForeignKey(ClinicManager, on_delete=models.CASCADE)
-    deliveryNo = models.ForeignKey(Delivery, on_delete=models.CASCADE)
+    deliveryNo = models.ForeignKey(Delivery, on_delete=models.CASCADE, blank = True, null = True)
 
-    def __str__(self):
-        return self.name
  
