@@ -81,8 +81,6 @@
     <div class="row justify-content-md-center">
 
         {% for item in Items %}
-        {{request.build_absolute_uri}}
-        {{item.itemNo}}
         <div class="col-md-2 col-sm-3 col-xs-4 product text-center">
             <img src="/Users/anujkapur/Documents/GitHub/Dromed/config/media/B_Braun_Lactated_Ringers_250ml.JPG" class="img-fluid prodimg" alt="Responsive image">
         
@@ -91,7 +89,7 @@
           <br>
           <text>{{item.weight}}</text>
           <br>
-          <button class = "btn btn-default btn-primary addtocart"  id = "{{item.itemNo}}" onclick="myFunction(this.id)">ADD TO CART</button>
+          <button class = "btn btn-default btn-primary addtocart"  id = "{{item.itemNo}}" onclick="myFunction(this.id, '{{item.description}}', '{{item.weight}}')">ADD TO CART</button>
         </div>
         {% endfor %}
 
@@ -111,77 +109,18 @@
           <text class = "ml-4 mb-2">MY DELIVERIES</text>
           <hr>
 
-          {% for item in Items %}
           <div class = "row justify-content-md-center mb-1" id = "cartdiv">
 
-            <div class="col-md-12 col-sm-12 col-xs-12">
-              <div class="row justify-content-md-center mb-1">
-                
-                <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
-                  <strong>ORDERS</strong>
-                </div>
-                
-                <div class = "col-md-3 col-sm-3 col-xs-3">
-                  4 ORDERS
-                </div> 
-                
-                <div class = "col-md-3 col-sm-3 col-xs-3">
-                </div>
-                
-                <div class="col-md-2 col-sm-2 col-xs-2 pl-5 ml-4">
-                <button type = "button dropdown-toggle dropdown-left" data-toggle = "dropdown"  class = "btn btn-default btn-danger btn-circle crossorder">
-                  X
-                </button>
-                </div>
-
-              </div>
-
-            <div class="row justify-content-md-center pt-2">
-                
-                <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
-                  <strong>ORDER WEIGHT</strong>
-                </div>
-                
-                <div class = "col-md-3 col-sm-3 col-xs-3">
-                  <strong>DELIVER BY</strong>
-                </div> 
-                
-                <div class="col-md-2 col-sm-2 col-xs-2 pl-3 ml-4">
-                  <strong>DELIVER FROM</strong>
-                </div>
-
-                <div class = "col-md-3 col-sm-3 col-xs-3">
-                </div>
-              
-            </div>
-
-            <div class="row justify-content-md-center mb-3 pt-1">
-                
-                <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
-                  24KGS
-                </div>
-                
-                <div class = "col-md-3 col-sm-3 col-xs-3">
-                  16th August
-                </div> 
-                
-                <div class="col-md-2 col-sm-2 col-xs-2 pl-3 ml-4">
-                  QMH
-                </div>
-
-                <div class = "col-md-3 col-sm-3 col-xs-3">
-                </div>
-              
-            </div>
           </div>
 
         </div>
-        {% endfor %}
 
       <hr>
 
 
     </div>
+
+    <input type="submit" value="Submit" style = "margin-left: 20px;">
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -190,9 +129,109 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
 
     <script>
-      function myFunction(clicked_id) {
-          document.getElementById(clicked_id).innerHTML = "YOU CLICKED ME!";
-          $('#cartdiv').append('<div>hello</div>');
+      var dict = {};
+      function myFunction(clicked_id, desc, weight) {
+
+          
+          if(!(clicked_id in dict))
+          {
+            dict[clicked_id] = 1;
+            qty = dict[clicked_id]
+            $('#cartdiv').append('<div class="col-md-12 col-sm-12 col-xs-12" id = "item'+clicked_id+ '">' +
+            '<div class="row justify-content-md-center mb-1">'+
+            '<div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">' +
+            '<strong>Item : </strong>'+clicked_id+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            'Qty : '+ qty +
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            '</div>'+
+            '<div class="col-md-2 col-sm-2 col-xs-2 pl-5 ml-4">'+
+            '<button type = "button dropdown-toggle dropdown-left" data-toggle = "dropdown"  class = "btn btn-default btn-danger btn-circle crossorder">'+
+            'X'+
+            '</button>'+
+            '</div>'+
+            '</div>'+
+            '<div class="row justify-content-md-center pt-2">'+
+            '<div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">'+
+            '<strong>ORDER WEIGHT</strong>'+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            '<strong>Item</strong>'+
+            '</div>'+ 
+            '<div class="col-md-2 col-sm-2 col-xs-2 pl-3 ml-4">'+
+            '<strong>DELIVER FROM</strong>'+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            '</div>'+
+            '</div>'+
+            '<div class="row justify-content-md-center mb-3 pt-1">'+
+            '<div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">'+
+            weight+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            desc+
+            '</div>'+ 
+            '<div class="col-md-2 col-sm-2 col-xs-2 pl-3 ml-4">'+
+            'QMH'+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            '</div>'+
+            '</div>'
+            );
+          }
+          else{
+
+            dict[clicked_id]++;
+            qty = dict[clicked_id];
+            $('#item'+clicked_id).html('<div class="col-md-12 col-sm-12 col-xs-12" id = item"'+clicked_id+ '">' +
+            '<div class="row justify-content-md-center mb-1">'+
+            '<div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">' +
+            '<strong>Item : </strong>'+clicked_id+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            'Qty : '+ qty+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            '</div>'+
+            '<div class="col-md-2 col-sm-2 col-xs-2 pl-5 ml-4">'+
+            '<button type = "button dropdown-toggle dropdown-left" data-toggle = "dropdown"  class = "btn btn-default btn-danger btn-circle crossorder">'+
+            'X'+
+            '</button>'+
+            '</div>'+
+            '</div>'+
+            '<div class="row justify-content-md-center pt-2">'+
+            '<div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">'+
+            '<strong>ORDER WEIGHT</strong>'+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            '<strong>Item</strong>'+
+            '</div>'+ 
+            '<div class="col-md-2 col-sm-2 col-xs-2 pl-3 ml-4">'+
+            '<strong>DELIVER FROM</strong>'+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            '</div>'+
+            '</div>'+
+            '<div class="row justify-content-md-center mb-3 pt-1">'+
+            '<div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">'+
+            weight+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            desc+
+            '</div>'+ 
+            '<div class="col-md-2 col-sm-2 col-xs-2 pl-3 ml-4">'+
+            'QMH'+
+            '</div>'+
+            '<div class = "col-md-3 col-sm-3 col-xs-3">'+
+            '</div>'+
+            '</div>');
+
+          }
+
+
+        clicked1 = 1
           //document.getElementById(clicked_id).innerHTML = clicked_id;
 
 
