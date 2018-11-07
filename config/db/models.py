@@ -18,6 +18,7 @@ class ClinicLocation(models.Model):
     clinicManager_location1 = models.ForeignKey(ClinicLocation, null = True, blank = True, on_delete=models.SET_NULL)
     distance = models.FloatField()
 """
+
 class ClinicManager(models.Model):
 
     username = models.CharField(max_length=200)
@@ -61,8 +62,8 @@ class Order(models.Model):
     L = "L"
 
     PRIORITY_SET = (
-    (U, 'Urgent'),
-    (I, 'Intermediate'),
+    (U, 'High'),
+    (I, 'Medium'),
     (L, 'Low')
     )
 
@@ -79,7 +80,12 @@ class Order(models.Model):
     weight = models.FloatField(blank = True, null = True) 
     datetime= models.DateField() 
 
+
     items = models.ManyToManyField(Item)
+    item1 = models.IntegerField(null = True)
+    item2 = models.IntegerField(null = True)
+    item3 = models.IntegerField(null = True)
+
     clinicManager_location = models.ForeignKey(ClinicLocation, null = True, blank = True, on_delete=models.SET_NULL)
     deliveryNo = models.ForeignKey(Delivery, on_delete=models.SET_NULL, blank = True, null = True)
 
