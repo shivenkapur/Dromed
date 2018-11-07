@@ -2,14 +2,27 @@ from django.db import models
 
 # Create your models here.
 
-class ClinicManager(models.Model):
 
-    username = models.CharField(max_length=200)
-    name = models.CharField(max_length=200)
+
+
+class ClinicLocation(models.Model):
     clinicLocation = models.CharField(max_length=200)
     latitude = models.FloatField() 
     longitude = models.FloatField() 
     altitude = models.FloatField() 
+
+    def __str__(self):
+        return self.clinicLocation
+
+"""class Distance(models.Model):
+    clinicManager_location1 = models.ForeignKey(ClinicLocation, null = True, blank = True, on_delete=models.SET_NULL)
+    distance = models.FloatField()
+"""
+class ClinicManager(models.Model):
+
+    username = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
+    clinicLocation = models.ForeignKey(ClinicLocation,null = True, blank = True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -19,7 +32,9 @@ class Delivery(models.Model):
     deliveryNo = models.IntegerField()
     weight = models.FloatField() 
     datetime= models.DateField() 
-
+    
+    def __str__(self):
+        return str(self.deliveryNo)
    
 
 class Item(models.Model):
@@ -32,10 +47,12 @@ class Item(models.Model):
     itemNo = models.IntegerField()
     weight = models.FloatField() 
     description = models.CharField(max_length=2000)
-    qty_avail = models.IntegerField()
+    qty_avail = models.IntegerField(blank=True, null = True)
     category = models.CharField(max_length=200, choices = CATEGORY_SET, default = IV)
+    profile_image = models.ImageField(upload_to="Users/anujkapur/Documents/GitHub/Dromed/config/db", default = "Users/anujkapur/Documents/GitHub/Dromed/config/db/benadryl.png")
 
-  
+    def __str__(self):
+        return self.description
 
 class Order(models.Model):
 
@@ -61,9 +78,11 @@ class Order(models.Model):
     orderStatus = models.CharField(max_length=200, choices = ORDER_STATUS, default = 'QFP')
     weight = models.FloatField(blank = True, null = True) 
     datetime= models.DateField() 
-    
-    items = models.ManyToManyField(Item)
-    clinicManager_username = models.ForeignKey(ClinicManager, on_delete=models.CASCADE)
-    deliveryNo = models.ForeignKey(Delivery, on_delete=models.CASCADE, blank = True, null = True)
 
+    items = models.ManyToManyField(Item)
+    clinicManager_location = models.ForeignKey(ClinicLocation, null = True, blank = True, on_delete=models.SET_NULL)
+    deliveryNo = models.ForeignKey(Delivery, on_delete=models.SET_NULL, blank = True, null = True)
+
+    def __str__(self):
+        return str(self.orderNo)
  
