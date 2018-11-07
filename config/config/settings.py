@@ -25,6 +25,9 @@ SECRET_KEY = '78q8#(&!p3#bh&2f=*iwf)ty44!hqyg18&93fn9f6u_d8-@x3n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 ALLOWED_HOSTS = []
 
 
@@ -55,7 +58,9 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'db/templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

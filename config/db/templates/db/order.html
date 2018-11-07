@@ -16,8 +16,6 @@
 
   </head>
   <body>
-
-    {% block content %}
     <!--Navbar--> 
     <nav class = "navbar navbar-default" role = "navigation">
     
@@ -83,8 +81,11 @@
     <div class="row justify-content-md-center">
 
         {% for item in Items %}
+        {{request.build_absolute_uri}}
         <div class="col-md-2 col-sm-3 col-xs-4 product text-center">
-          <img src="benadryl.png" class="img-fluid prodimg" alt="Responsive image">
+            <img src="/Users/anujkapur/Documents/GitHub/Dromed/config/media/B_Braun_Lactated_Ringers_250ml.JPG" class="img-fluid prodimg" alt="Responsive image">
+        
+          
           <strong>{{item.description}}</strong>
           <br>
           <text>{{item.weight}}</text>

@@ -50,7 +50,8 @@ class Item(models.Model):
     description = models.CharField(max_length=2000)
     qty_avail = models.IntegerField(blank=True, null = True)
     category = models.CharField(max_length=200, choices = CATEGORY_SET, default = IV)
-    profile_image = models.ImageField(upload_to="Users/anujkapur/Documents/GitHub/Dromed/config/db", default = "Users/anujkapur/Documents/GitHub/Dromed/config/db/benadryl.png")
+    profile_image = models.ImageField(upload_to="gallery", default = "gallery")
+    urlroot = "Users/anujkapur/Documents/GitHub/Dromed/"
 
     def __str__(self):
         return self.description
