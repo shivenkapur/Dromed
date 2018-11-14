@@ -58,6 +58,7 @@ class Item(models.Model):
 
 class Order(models.Model):
 
+
     U = "U"
     I = "I"
     L = "L"
@@ -75,21 +76,32 @@ class Order(models.Model):
     ('DIS', 'Dispatched'),
     ('DEL', 'Delivered'))
 
+    lastorder = 0
     orderNo = models.IntegerField()
     priority = models.CharField(max_length=200, choices = PRIORITY_SET, default = U)
     orderStatus = models.CharField(max_length=200, choices = ORDER_STATUS, default = 'QFP')
     weight = models.FloatField(blank = True, null = True) 
-    datetime= models.DateField() 
-
-
-    items = models.ManyToManyField(Item)
-    item1 = models.IntegerField(null = True)
-    item2 = models.IntegerField(null = True)
-    item3 = models.IntegerField(null = True)
+    datetime= models.DateField(blank = True, null = True) 
+    noOfItems = models.IntegerField(blank = True, null = True)
 
     clinicManager_location = models.ForeignKey(ClinicLocation, null = True, blank = True, on_delete=models.SET_NULL)
     deliveryNo = models.ForeignKey(Delivery, on_delete=models.SET_NULL, blank = True, null = True)
 
+    @classmethod
+    def create(cls, orderNo, noOfItems = 0, priority = L, orderStatus = 'QFP', weight = 0):
+        order = cls(orderNo = orderNo, noOfItems = noOfItems, priority = priority, orderStatus = orderStatus, weight = weight);
+        return order
+
     def __str__(self):
         return str(self.orderNo)
+
+class Item_Asoc_Order(models.Model):
+    itemNo = models.IntegerField()
+    orderNo = models.IntegerField()
+    qty = models.IntegerField(default = 1)
+
+    @classmethod
+    def create(cls, itemNo, orderNo, qty):
+        asoc = cls(orderNo = orderNo, itemNo = itemNo, qty = qty);
+        return asoc
  

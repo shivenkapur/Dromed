@@ -3,5 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.item_view)
+    path('order/', views.item_view, name = 'items-view'),
+    path('order/send/', views.ContactSendView.as_view(), name = 'send'),
+    path('dispatcher/', views.order_view, name = 'disptacher')
 ]
