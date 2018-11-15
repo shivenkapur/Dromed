@@ -138,5 +138,22 @@ function sendData()
      });
 
 }
+dictButtons = {};
+function priority(buttonID)
+{
+    for (var key in dict) {
+        dictButtons[key] = 0;
+        $('#'+key).css('opacity', 0.5);
+
+    }
+    $('#'+'high').css('opacity', 0.5);
+    $('#'+'medium').css('opacity', 0.5);
+    $('#'+'low').css('opacity', 0.5);
+    $('#'+buttonID).css('opacity', 1);
+    dictButtons[buttonID] = 1;
+
+
+
+}
 
 
