@@ -5,6 +5,7 @@ from braces import views
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from django.shortcuts import redirect
+from django.http import HttpResponse
 
 import json
 # Create your views here.
@@ -12,25 +13,44 @@ import json
 orderNo = 0
 
 def item_view(request):
-	context_object_name = 'Items'
-	objects = Item.objects.all()
+    context_object_name = 'Items'
+    objects = Item.objects.all()
 
-	context = {
-		'Items': objects,
-	}
+    context = {
+        'Items': objects,
+    }
 
-	# Render the HTML template index.html with the data in the context variable
-	return render(request, 'db/order.html', context)
+    # Render the HTML template index.html with the data in the context variable
+    return render(request, 'db/order.html', context)
 
-def order_view(request):
-	context_object_name = 'Order'
-	objects = Order.objects.all()
+def new_WP(request):
+    context_object_name = 'Order'
+    objects = Order.objects.all()
 
-	context = {
-		'Order': objects,
-	}
-	return render(request, 'db/dispatcher.html', context)
+    context = {
+        'Order': objects,
+    }
+    return render(request, 'db/newWP.html', context)
 
+def dequeue_WP(request):
+    context_object_name = 'Order'
+    objects = Order.objects.all()
+
+    context = {
+        'Order': objects,
+    }
+    # Render the HTML template index.html with the data in the context variable
+    return render(request, 'db/dequeuedWP.html', context)
+
+def new_D(request):
+    context_object_name = 'Delivery'
+    objects = Order.objects.all()
+
+    context = {
+        'Delivery': objects,
+    }
+    # Render the HTML template index.html with the data in the context variable
+    return render(request, 'db/dequeuedWP.html', context)
 def pdf_generation(request):
     #buffer = io.BytesIO()
     p = canvas.Canvas('db/shipping_label.pdf')
@@ -49,32 +69,58 @@ def pdf_generation(request):
     return response
 
 class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
-	require_json = True
-	def post(self, request, *args, **kwargs):
-		global orderNo
-<<<<<<< HEAD
-		orderNo = Order.lastorder + 1
-		Order.lastorder += 1
-=======
-		orderNo = Order.lastorder +1
-		Order.lastorder+=1
->>>>>>> new_one
-		quantity = 0
-		weight = 0
-		print(orderNo)
-		objects = json.loads(request.body)
-		print(objects)
-		items = Item.objects.all();
-		
-		for obj in objects:
-			item_asoc_order = Item_Asoc_Order.create(itemNo= int(obj['itemNo']), orderNo = orderNo, qty = obj['quantity'])
-			item_asoc_order.save();
-			quantity += obj['quantity']
-			weight += obj['quantity'] * obj['weight']
+    require_json = True
+    def post(self, request, *args, **kwargs):
+        global orderNo
+        orderNo = Order.lastorder + 1
+        Order.lastorder += 1
+        orderNo = Order.lastorder +1
+        Order.lastorder+=1
+        
+        quantity = 0
+        weight = 0
+        print(orderNo)
+        objects = json.loads(request.body)
+        print(objects)
+        items = Item.objects.all();
+        
+        for obj in objects:
+            item_asoc_order = Item_Asoc_Order.create(itemNo= int(obj['itemNo']), orderNo = orderNo, qty = obj['quantity'])
+            item_asoc_order.save();
+            quantity += obj['quantity']
+            weight += obj['quantity'] * obj['weight']
 
 
-		order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight)
-		order.save();
+        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight)
+        order.save();
 
-		return self.render_json_response(
+        return self.render_json_response(
             {"message": "Your contact has been sent!"})
+
+class DequeueOrder(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        orderNo = request.body
+        print(orderNo)
+        
+        orders = Order.objects.filter(orderNo=int(orderNo))
+        for order in orders:
+            print(order.orderStatus)
+            order.orderStatus = 'PBW'
+            order.save()
+            print(order.orderStatus)
+
+        return HttpResponse('')
+
+class CompleteOrder(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        
+        orderNo = request.body
+        print(orderNo)
+        orders = Order.objects.filter(orderNo=int(orderNo))
+        for order in orders:
+            print(order.orderStatus)
+            order.orderStatus = 'QFD'
+            order.save()
+            print(order.orderStatus)
+        return HttpResponse('')
+        

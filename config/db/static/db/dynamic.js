@@ -124,8 +124,10 @@ function sendData()
     }
 
     url = "send/";
-
     var json = JSON.stringify(data);
+
+    console.log(json);
+
     $.post(url, json)
     .done(function() {
         window.location.href='';

@@ -14,8 +14,8 @@
 
         <ul class="nav nav-pills">
 
-          <li class="active bg-primary"><a href="/" color = "white">NEW</a></li>
-          <li><a href="/dequeueWP">DEQUEUED</a></li>
+          <li><a href="/newWP" color = "white">NEW</a></li>
+          <li class="active bg-primary"><a href="/">DEQUEUED</a></li>
 
         </ul>
 
@@ -35,10 +35,10 @@
       
         <div class="col-md-8 col-sm-8 col-xs-8 pt-4 pl-0 pr-0 orders">
 
-          <text class = "ml-4 mb-2">MY DELIVERIES</text>
+          <text class = "ml-4 mb-2">MY ORDERS</text>
           <hr>
-          {% for delivery in Delivery%}
-            {% if order.orderStatus == 'QFP' %}
+          {% for order in Order%}
+            {% if order.orderStatus == 'PBW' %}
           <div class = "row justify-content-md-center mb-1" id = 'Order{{order.orderNo}}'>
 
             <div class="col-md-12 col-sm-12 col-xs-12">
@@ -57,9 +57,7 @@
                 </div>
                 
                 <div class="col-md-2 col-sm-2 col-xs-2 pl-5 ml-4 text-center">
-                <button type = "button" class = "btn btn-default btn-danger btn-circle crossorder" style = "background-color:#A02104;" id = '{{order.orderNo}}' onclick="dequeue(this.id)">
-                  X  
-                </button>
+                <button class = "btn btn-secondary" style = "border:0;font-size: 15px;padding:10px;" onclick="complete(this.id)" id = "{{order.orderNo}}"><strong>COMPLETE</strong></button>
                 </div>
 
               </div>
@@ -167,8 +165,26 @@
 
     function sendData(clicked_id)
     {
-      
+        
       url = "warehouse/pdf/";
+
+      data = String(clicked_id)
+
+      $.post(url, data)
+      .done(function() {
+          
+      })
+      .fail(function() {
+      })
+      .always(function() {
+       });
+
+    }
+
+    function complete(clicked_id)
+    {
+      $('#Order'+clicked_id).remove();
+      url = "complete/";
 
       data = String(clicked_id)
 
