@@ -36,7 +36,7 @@
       <br>
       <text>{{item.weight}}</text>
       <br>
-      <button class = "btn btn-default btn-primary addtocart"  id = "{{item.itemNo}}" onclick="myFunction(this.id, '{{item.description}}', '{{item.weight}}')">ADD TO CART</button>
+      <button class = "btn btn-default btn-primary addtocart"  id = "{{item.itemNo}}" onclick="myFunction(this.id, '{{item.description}}', {{item.weight}})">ADD TO CART</button>
     </div>
     {% endfor %}
 
