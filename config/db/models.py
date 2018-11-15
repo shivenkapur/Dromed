@@ -17,14 +17,23 @@ class ClinicLocation(models.Model):
     distance = models.FloatField()
 """
 
-class ClinicManager(models.Model):
+class Users(models.Model):
+    
+    firstname = models.CharField(max_length=200)
+    lastname = models.CharField(max_length=200)
+    username = models.CharField(max_length=200, primary_key = True)
+    password = models.CharField(max_length=200)
+    role = models.CharField(max_length=200)
+    emailID = models.EmailField()
+    #clinicLocation = models.ForeignKey(Delivery)
 
-    username = models.CharField(max_length=200)
-    name = models.CharField(max_length=200)
-    clinicLocation = models.ForeignKey(ClinicLocation,null = True, blank = True, on_delete=models.SET_NULL)
+    @classmethod
+    def create(cls, firstname, lastname, username, password, role, emailID):
+        user = cls(firstname = firstname, lastname = lastname, username = username, password = password, role = role, emailID = emailID);
+        return user
 
     def __str__(self):
-        return self.name
+        return str(self.firstname)
 
 class Delivery(models.Model):
     
@@ -34,7 +43,6 @@ class Delivery(models.Model):
     
     def __str__(self):
         return str(self.deliveryNo)
-   
 
 class Item(models.Model):
 
