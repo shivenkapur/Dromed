@@ -1,11 +1,12 @@
 var dict = {};
-
-
+var dict2 = {};
 
 function myFunction(clicked_id, desc, weight) {
 
-  if(!(clicked_id in dict))
+  if(!(clicked_id in dict)){
     dict[clicked_id] = 1;
+    dict2[clicked_id] = weight;
+  }
   else
     dict[clicked_id]++;
 
@@ -118,6 +119,7 @@ function sendData()
         data[i] = {};
         data[i]['itemNo'] = key;
         data[i]['quantity'] = dict[key];
+        data[i]['weight'] = dict2[key];
         i++;
     }
 
