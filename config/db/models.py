@@ -56,9 +56,9 @@ class Item(models.Model):
 
 class Order(models.Model):
 
-    U = "U"
-    I = "I"
-    L = "L"
+    U = "High"
+    I = "Medium"
+    L = "Low"
 
     PRIORITY_SET = (
     (U, 'High'),

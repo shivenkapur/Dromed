@@ -1,5 +1,6 @@
 var dict = {};
 var dict2 = {};
+dictButtons = {};
 
 function myFunction(clicked_id, desc, weight) {
 
@@ -113,8 +114,15 @@ function myFunction(clicked_id, desc, weight) {
 function sendData()
 {
     data = [];
-    i = 0;
-    
+    priority = ''    
+    for (var key in dictButtons) {
+        if(dictButtons[key] == 1)
+            priority = key
+    }
+    data[0] = {};
+    data[0]['priority'] = priority
+
+    i = 1;
     for (var key in dict) {
         data[i] = {};
         data[i]['itemNo'] = key;
@@ -138,22 +146,18 @@ function sendData()
      });
 
 }
-dictButtons = {};
+
 function priority(buttonID)
 {
-    for (var key in dict) {
+    for (var key in dictButtons) {
         dictButtons[key] = 0;
         $('#'+key).css('opacity', 0.5);
-
     }
-    $('#'+'high').css('opacity', 0.5);
-    $('#'+'medium').css('opacity', 0.5);
-    $('#'+'low').css('opacity', 0.5);
+    $('#'+'High').css('opacity', 0.5);
+    $('#'+'Medium').css('opacity', 0.5);
+    $('#'+'Low').css('opacity', 0.5);
     $('#'+buttonID).css('opacity', 1);
     dictButtons[buttonID] = 1;
-
-
-
 }
 
 

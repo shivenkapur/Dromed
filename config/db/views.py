@@ -84,14 +84,20 @@ class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, Vie
         print(objects)
         items = Item.objects.all();
         
+        i = 0
+        priority = ''
         for obj in objects:
-            item_asoc_order = Item_Asoc_Order.create(itemNo= int(obj['itemNo']), orderNo = orderNo, qty = obj['quantity'])
-            item_asoc_order.save();
-            quantity += obj['quantity']
-            weight += obj['quantity'] * obj['weight']
+            if i == 0:
+                priority = obj['priority']
+                i+=1
+            else:
+                item_asoc_order = Item_Asoc_Order.create(itemNo= int(obj['itemNo']), orderNo = orderNo, qty = obj['quantity'])
+                item_asoc_order.save();
+                quantity += obj['quantity']
+                weight += obj['quantity'] * obj['weight']
 
 
-        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight)
+        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority)
         order.save();
 
         return self.render_json_response(
