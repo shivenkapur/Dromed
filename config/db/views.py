@@ -4,10 +4,8 @@ from django.views.generic import View
 from braces import views
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
-
 from django.shortcuts import redirect
 
-import io
 import json
 # Create your views here.
 
@@ -34,15 +32,21 @@ def order_view(request):
 	return render(request, 'db/dispatcher.html', context)
 
 def pdf_generation(request):
-    buffer = io.BytesIO()
-    p = canvas.Canvas(buffer)
+    #buffer = io.BytesIO()
+    p = canvas.Canvas('db/shipping_label.pdf')
     
+    # json =
     
-
+    p.drawString(245, 750, 'SHIPPING LABEL')
+    p.drawString(100, 650, 'Order Number:')
+    p.drawString(100, 600, 'List of Items:')
+    p.drawString(100, 550, 'Final Destination:')
+    
     p.showPage()
     p.save()
     
-    return FileResponse(buffer, as_attachment = True, filename = 'shipping_label.pdf')
+    response = redirect('/dispatcher/')
+    return response
 
 class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
 	require_json = True
