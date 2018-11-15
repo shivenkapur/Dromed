@@ -58,7 +58,6 @@ class Item(models.Model):
 
 class Order(models.Model):
 
-
     U = "U"
     I = "I"
     L = "L"
@@ -76,6 +75,9 @@ class Order(models.Model):
     ('DIS', 'Dispatched'),
     ('DEL', 'Delivered'))
 
+    TYPE_SET = (
+    ('N', 'New'),
+    ('D', 'Dequeued'))
     lastorder = 0
     orderNo = models.IntegerField()
     priority = models.CharField(max_length=200, choices = PRIORITY_SET, default = U)
@@ -83,6 +85,7 @@ class Order(models.Model):
     weight = models.FloatField(blank = True, null = True) 
     datetime= models.DateField(blank = True, null = True) 
     noOfItems = models.IntegerField(blank = True, null = True)
+    orderType = models.CharField(max_length=200, choices = TYPE_SET, default = 'N')
 
     clinicManager_location = models.ForeignKey(ClinicLocation, null = True, blank = True, on_delete=models.SET_NULL)
     deliveryNo = models.ForeignKey(Delivery, on_delete=models.SET_NULL, blank = True, null = True)

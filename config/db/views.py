@@ -36,8 +36,8 @@ class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, Vie
 	require_json = True
 	def post(self, request, *args, **kwargs):
 		global orderNo
-		orderNo = Order.lastorder +1
-
+		orderNo = Order.lastorder + 1
+		Order.lastorder += 1
 		quantity = 0
 		weight = 0
 		print(orderNo)

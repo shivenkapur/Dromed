@@ -38,14 +38,14 @@
           <text class = "ml-4 mb-2">MY DELIVERIES</text>
           <hr>
           {% for order in Order%}
-          <div class = "row justify-content-md-center mb-1">
+          <div class = "row justify-content-md-center mb-1" id = 'Order{{order.orderNo}}'>
 
             <div class="col-md-12 col-sm-12 col-xs-12">
 
-              <div class="row justify-content-md-center mb-1">
+              <div class="row justify-content-md-center mb-1 ml-1">
                 
                 <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
-                  <strong>{{order.orderNo}}</strong>
+                  <strong>ORDER NUMBER {{order.orderNo}}</strong>
                 </div>
                 
                 <div class = "col-md-3 col-sm-3 col-xs-3">
@@ -55,15 +55,15 @@
                 <div class = "col-md-3 col-sm-3 col-xs-3">
                 </div>
                 
-                <div class="col-md-2 col-sm-2 col-xs-2 pl-5 ml-4">
-                <button type = "button dropdown-toggle dropdown-left" data-toggle = "dropdown"  class = "btn btn-default btn-danger btn-circle crossorder">
-                  X
+                <div class="col-md-2 col-sm-2 col-xs-2 pl-5 ml-4 text-center">
+                <button type = "button" class = "btn btn-default btn-danger btn-circle crossorder" style = "background-color:#A02104;" id = '{{order.orderNo}}' onclick="dequeue(this.id)">
+                  X  
                 </button>
                 </div>
 
               </div>
 
-            <div class="row justify-content-md-center pt-2">
+            <div class="row justify-content-md-center pt-4 ml-1">
                 
                 <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
                   <strong>ORDER WEIGHT</strong>
@@ -82,7 +82,7 @@
               
             </div>
 
-            <div class="row justify-content-md-center mb-3 pt-1">
+            <div class="row justify-content-md-center mb-2 pt-1 ml-1">
                 
                 <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
                   {{order.weight}}KGS
@@ -92,24 +92,64 @@
                   16th August
                 </div> 
                 
-                <div class="col-md-2 col-sm-2 col-xs-2 pl-3 ml-4">
+                <div class="col-md-3 col-sm-3 col-xs-3 pl-3 ml-4">
                   QMH
                 </div>
 
-                <div class = "col-md-3 col-sm-3 col-xs-3">
+                <div class = "col-md-2 col-sm-2 col-xs-2 pt-3 text-center" >
+                  <button class = "btn btn-secondary" style = "border:0;font-size: 15px;padding:10px;" onclick="myFunction(this.id,'{{order.status}}','{{order.priority}}','{{order.clinicManager_location.clinicLocation}}')" id = "{{order.orderNo}}"><strong>SELECT</strong></button>
                 </div>
               
             </div>
-          </div>
 
+            <hr>
+          </div>
         </div>
 
-        <hr>
+        
     {% endfor %}
 
     </div>
 
-    <div class="col-md-3 col-sm-3 col-xs-3 orderdetails">
+    <div class="col-md-3 col-sm-3 col-xs-3 orderdetails" id = "orderdetails">
+      <div style = "padding-top: 20px;font-size: 20px;">ORDER DETAILS</div>
+      <hr>
+      <div id= "append"  style = "padding: 5px 10px 5px 10px;margin-bottom: 20px;"></div>
+      
     </div>
+  </div>
+    <script type="text/javascript">
+    var dict = {};
+    function myFunction(clicked_id, status, priority, clinicLocation) {     
+        
+        for (var key in dict) {
+            dict[key] = 0;
+        }
+
+        dict[clicked_id] = 1;
+        htmltext =
+        '<div style = "padding: 5px 0 5px 0;font-size: 15px;"><strong> ORDER PRIORITY</strong></div>'+
+        '<div style = "padding: 20px 0px 5px 10px;">{{order.Priority}}</div>'+
+        '<div style = "padding: 20px 0 5px 0;font-size: 15px;"><strong> ORDER NUMBER</strong></div>'+
+        '<div style = "padding: 15px 0px 5px 10px;">'+clicked_id+'</div>'+
+        '<div style = "padding: 20px 0 5px 0;font-size: 15px;"><strong> ORDER STATUS</strong></div>'+
+        '<div style = "padding: 15px 0px 5px 10px;">'+status+'</div>'+
+        '<div style = "padding: 20px 0 5px 0;font-size: 15px;"><strong> CLINIC MANAGER</strong></div>'+
+        '<div style = "padding: 15px 0px 5px 10px;">Shiven Kapur</div>'+
+        '<div style = "padding: 20px 0 5px 0;font-size: 15px;"><strong> DELIVERING TO</strong></div>'+
+        '<div style = "padding: 15px 0px 5px 10px;">'+clinicLocation+'</div>'+
+        '<div class = "text-center"><button class = "btn btn-secondary" style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD PDF</strong></button></div>';
+
+        $('#append').html(htmltext);
+    }
+
+    function dequeue(clicked_id)
+    {
+      if(dict[clicked_id] == 1)
+        $('#append').html(' ');
+      $('#Order'+clicked_id).remove();
+
+    }
+  </script>
 {% endblock content %}
 
