@@ -1,10 +1,12 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 
 urlpatterns = [
     path('order/', views.item_view, name = 'items-view'),
+    path('register/', views.login, name = 'register'),
+    path('register/submit/', views.Submit.as_view(), name = 'submission'),
     path('order/send/', views.ContactSendView.as_view(), name = 'send'),
     path('dispatcher/', views.order_view, name = 'disptacher'),
-    path('warehouse/pdf/', views.pdf_generation, name = 'pdf-creation')
+    re_path(r'^dispatcher/warehouse/pdf/', views.PDF.as_view(), name = 'pdf-creation')
 ]

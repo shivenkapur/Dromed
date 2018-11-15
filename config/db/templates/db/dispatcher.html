@@ -37,6 +37,7 @@
 
           <text class = "ml-4 mb-2">MY DELIVERIES</text>
           <hr>
+          
           {% for order in Order%}
           <div class = "row justify-content-md-center mb-1" id = 'Order{{order.orderNo}}'>
 
@@ -138,9 +139,24 @@
         '<div style = "padding: 15px 0px 5px 10px;">Shiven Kapur</div>'+
         '<div style = "padding: 20px 0 5px 0;font-size: 15px;"><strong> DELIVERING TO</strong></div>'+
         '<div style = "padding: 15px 0px 5px 10px;">'+clinicLocation+'</div>'+
-        '<div class = "text-center"><button class = "btn btn-secondary" style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD PDF</strong></button></div>';
+        '<div class = "text-center"><button class = "btn btn-secondary" onclick = sendData('+clicked_id+') style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD PDF</strong></button></div>';
 
         $('#append').html(htmltext);
+    }
+
+    function sendData(clicked_id)
+    {
+        
+      url = "warehouse/pdf/";
+
+      data = String(clicked_id)
+
+      $.get(url, data)
+
+      .done(function(data){
+        //window.open(escape(data));
+      });
+      
     }
 
     function dequeue(clicked_id)

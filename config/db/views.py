@@ -2,7 +2,7 @@ from django.shortcuts import render
 from db.models import Item, Order, Item_Asoc_Order
 from django.views.generic import View
 from braces import views
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponseRedirect
 from reportlab.pdfgen import canvas
 from django.shortcuts import redirect
 
@@ -32,25 +32,37 @@ def order_view(request):
 	}
 	return render(request, 'db/dispatcher.html', context)
 
-def pdf_generation(request):
-    #buffer = io.BytesIO()
-    p = canvas.Canvas('db/shipping_label.pdf')
+def login(request):
+    return render(request, 'db/login.html')
+
+class Submit(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+
+        return HttpResponse()
+
+class PDF(views.CsrfExemptMixin, View):
+    def get(self, request, *args, **kwargs):
+        
+        p = canvas.Canvas('db/shipping_label.pdf')
+        
+        order_num = request.META['QUERY_STRING']
+        obj = Order.objects.filter(orderNo = int(order_num))
+
+        for i in obj:
+            print(i.clinicManager_location.all())
+        
+        p.drawString(245, 750, 'SHIPPING LABEL')
+        p.drawString(100, 650, 'Order Number: ' + order_num)
+        p.drawString(100, 600, 'List of Items: ')
+        #p.drawString(100, 550, 'Final Destination: ' + obj[0].ClinicLocation.clinicLocation)
+        p.showPage()
+        p.save()
     
-    # json =
-    
-    p.drawString(245, 750, 'SHIPPING LABEL')
-    p.drawString(100, 650, 'Order Number:')
-    p.drawString(100, 600, 'List of Items:')
-    p.drawString(100, 550, 'Final Destination:')
-    
-    p.showPage()
-    p.save()
-    
-    #response = redirect('/dispatcher/')
-    #return response
-    response = FileResponse(open('db/shipping_label.pdf', 'rb'), content_type='application/pdf')
-    response['Content-Disposition'] = 'inline'
-    return response
+        response = FileResponse(open('db/shipping_label.pdf', 'rb'), content_type='application/pdf')
+        response['Content-Disposition'] = 'inline'
+        print(response)
+        
+        return response
 
 class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
 	require_json = True
