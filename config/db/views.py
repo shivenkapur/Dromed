@@ -7,30 +7,49 @@ from reportlab.pdfgen import canvas
 from django.shortcuts import redirect
 from .forms import NameForm
 
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
+from .models import *
 import json
+from django.contrib import auth, messages
+
 # Create your views here.
 
 orderNo = 0
 
 def item_view(request):
-	context_object_name = 'Items'
-	objects = Item.objects.all()
+    context_object_name = 'Items'
+    objects = Item.objects.all()
 
-	context = {
-		'Items': objects,
-	}
+    context = {
+        'Items': objects,
+    }
 
-	# Render the HTML template index.html with the data in the context variable
-	return render(request, 'db/order.html', context)
+    # Render the HTML template index.html with the data in the context variable
+    return render(request, 'db/order.html', context)
 
-def order_view(request):
-	context_object_name = 'Order'
-	objects = Order.objects.all()
+def new_WP(request):
+    context_object_name = 'Order'
+    objects = Order.objects.all()
 
-	context = {
-		'Order': objects,
-	}
-	return render(request, 'db/dispatcher.html', context)
+    context = {
+        'Order': objects,
+    }
+    return render(request, 'db/newWP.html', context)
+
+def dequeue_WP(request):
+    context_object_name = 'Order'
+    objects = Order.objects.all()
+
+    context = {
+        'Order': objects,
+    }
+    # Render the HTML template index.html with the data in the context variable
+    return render(request, 'db/dequeuedWP.html', context)
+
+def new_D(request):
+    context_object_name = 'Delivery'
+    objects = Order.objects.all()
 
 def reg(request):
     return render(request, 'db/signup.html')
@@ -75,12 +94,21 @@ class PDF(views.CsrfExemptMixin, View):
         #p.drawString(100, 550, 'Final Destination: ' + obj[0].ClinicLocation.clinicLocation)
         p.showPage()
         p.save()
-    
+
+        context = {
+            'Delivery': objects,
+        }
+
         response = FileResponse(open('db/shipping_label.pdf', 'rb'), content_type='application/pdf')
         response['Content-Disposition'] = 'inline'
         print(response)
-        
+                
         return response
+    # Render the HTML template index.html with the data in the context variable
+    #return render(request, 'db/dequeuedWP.html', context)
+    
+        
+            
 
 class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
 	require_json = True
@@ -111,3 +139,75 @@ class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, Vie
 
 		return self.render_json_response(
             {"message": "Your contact has been sent!"})
+
+class DequeueOrder(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        orderNo = request.body
+        print(orderNo)
+        
+        orders = Order.objects.filter(orderNo=int(orderNo))
+        for order in orders:
+            print(order.orderStatus)
+            order.orderStatus = 'PBW'
+            order.save()
+            print(order.orderStatus)
+
+        return HttpResponse('')
+
+class CompleteOrder(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        
+        orderNo = request.body
+        print(orderNo)
+        orders = Order.objects.filter(orderNo=int(orderNo))
+        for order in orders:
+            print(order.orderStatus)
+            order.orderStatus = 'QFD'
+            order.save()
+            print(order.orderStatus)
+        return HttpResponse('')
+        
+def reg(request):
+    return render(request, 'db/signup.html')
+
+class Submit(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        
+        form = NameForm(request.POST)
+        # Send an email for token value
+        
+        if form.is_valid():
+            print(form.cleaned_data)
+            # Verifying the token value with the one sent in HA email
+            
+            # Verifying that the username is unique
+            if Users.objects.filter(username = form.cleaned_data['username']).count() == 0:
+                user = Users.create(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname'], username = form.cleaned_data['username'], password = form.cleaned_data['password'], role = form.cleaned_data['role'], emailID = 'vanshajchadha05@gmail.com')
+                user.save()
+                print("New Username")
+                    
+            else:
+                print("Old Username")
+                
+            # Setting the default email to the HA email
+            
+        return HttpResponseRedirect('/register/')
+
+
+def login(request):
+ 
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = auth.authenticate(username=username, password=password)
+        if user is not None:
+            # correct username and password login the user
+            auth.login(request, user)
+            return HttpResponseRedirect('/order/')
+
+        else:
+            messages.error(request, 'Error wrong username/password')
+
+    return render(request, 'db/login.html')
+
+

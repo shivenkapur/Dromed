@@ -124,8 +124,10 @@ function sendData()
     }
 
     url = "send/";
-
     var json = JSON.stringify(data);
+
+    console.log(json);
+
     $.post(url, json)
     .done(function() {
         window.location.href='';
@@ -134,6 +136,23 @@ function sendData()
     })
     .always(function() {
      });
+
+}
+dictButtons = {};
+function priority(buttonID)
+{
+    for (var key in dict) {
+        dictButtons[key] = 0;
+        $('#'+key).css('opacity', 0.5);
+
+    }
+    $('#'+'high').css('opacity', 0.5);
+    $('#'+'medium').css('opacity', 0.5);
+    $('#'+'low').css('opacity', 0.5);
+    $('#'+buttonID).css('opacity', 1);
+    dictButtons[buttonID] = 1;
+
+
 
 }
 

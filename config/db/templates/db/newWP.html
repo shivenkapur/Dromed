@@ -35,15 +35,10 @@
       
         <div class="col-md-8 col-sm-8 col-xs-8 pt-4 pl-0 pr-0 orders">
 
-          <text class = "ml-4 mb-2">MY DELIVERIES</text>
+          <text class = "ml-4 mb-2">MY ORDERS</text>
           <hr>
-<<<<<<< HEAD
-          
           {% for order in Order%}
-=======
-          {% for delivery in Delivery%}
             {% if order.orderStatus == 'QFP' %}
->>>>>>> login
           <div class = "row justify-content-md-center mb-1" id = 'Order{{order.orderNo}}'>
 
             <div class="col-md-12 col-sm-12 col-xs-12">
@@ -149,21 +144,6 @@
         $('#append').html(htmltext);
     }
 
-    function sendData(clicked_id)
-    {
-        
-      url = "warehouse/pdf/";
-
-      data = String(clicked_id)
-
-      $.get(url, data)
-
-      .done(function(data){
-        //window.open(escape(data));
-      });
-      
-    }
-
     function dequeue(clicked_id)
     {
       if(dict[clicked_id] == 1)
@@ -187,7 +167,7 @@
 
     function sendData(clicked_id)
     {
-      
+        
       url = "warehouse/pdf/";
 
       data = String(clicked_id)
