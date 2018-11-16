@@ -5,9 +5,12 @@ from braces import views
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from django.shortcuts import redirect
-from django.http import HttpResponse
-
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
+from .models import *
 import json
+from django.contrib import auth, messages
+
 # Create your views here.
 
 orderNo = 0
@@ -124,3 +127,47 @@ class CompleteOrder(views.CsrfExemptMixin, View):
             print(order.orderStatus)
         return HttpResponse('')
         
+def reg(request):
+    return render(request, 'db/login.html')
+
+class Submit(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        
+        form = NameForm(request.POST)
+        # Send an email for token value
+        
+        if form.is_valid():
+            print(form.cleaned_data)
+            # Verifying the token value with the one sent in HA email
+            
+            # Verifying that the username is unique
+            if Users.objects.filter(username = form.cleaned_data['username']).count() == 0:
+                user = Users.create(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname'], username = form.cleaned_data['username'], password = form.cleaned_data['password'], role = form.cleaned_data['role'], emailID = 'vanshajchadha05@gmail.com')
+                user.save()
+                print("New Username")
+                    
+            else:
+                print("Old Username")
+                
+            # Setting the default email to the HA email
+            
+        return HttpResponseRedirect('/register/')
+
+
+def login(request):
+ 
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = auth.authenticate(username=username, password=password)
+        if user is not None:
+            # correct username and password login the user
+            auth.login(request, user)
+            return HttpResponseRedirect('/order/')
+
+        else:
+            messages.error(request, 'Error wrong username/password')
+
+    return render(request, 'db/login.html')
+
+
