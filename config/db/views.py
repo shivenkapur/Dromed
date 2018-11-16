@@ -33,7 +33,7 @@ def order_view(request):
 	return render(request, 'db/dispatcher.html', context)
 
 def reg(request):
-    return render(request, 'db/login.html')
+    return render(request, 'db/signup.html')
 
 class Submit(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
