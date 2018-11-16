@@ -28,15 +28,18 @@
 <div class="row justify-content-md-center">
 
     {% for item in Items %}
-    <div class="col-md-2 col-sm-3 col-xs-4 product text-center">
-        <img src="{% static "db/B_Braun_Lactated_Ringers_250ml.JPG" %}" class="img-fluid prodimg" alt="Responsive image">
     
+    <div class="col-md-2 col-sm-3 col-xs-4 product text-center">
+        <img src="{{item.profile_image.url}}" class="img-fluid prodimg" alt="Responsive image">
+        
       
       <strong>{{item.description}}</strong>
       <br>
       <text>{{item.weight}}</text>
       <br>
-      <button class = "btn btn-default btn-primary addtocart"  id = "{{item.itemNo}}" onclick="myFunction(this.id, '{{item.description}}', {{item.weight}})">ADD TO CART</button>
+      <button class = "btn btn-default btn-primary addtocart"  id = "{{item.itemNo}}" 
+      onclick="myFunction(this.id, '{{item.description}}', {{item.weight}}, '{{item.profile_image.url}}')">ADD TO CART
+      </button>
     </div>
     {% endfor %}
 

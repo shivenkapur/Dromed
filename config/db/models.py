@@ -1,3 +1,4 @@
+
 from django.db import models
 
 # Create your models here.
@@ -30,10 +31,19 @@ class Delivery(models.Model):
     
     deliveryNo = models.IntegerField()
     weight = models.FloatField() 
-    datetime= models.DateField() 
+    date = models.DateField(blank=True, null = True) 
+    time = models.TimeField(blank=True, null = True)
+    datetime = models.DateTimeField(blank=True, null = True)
+    noOfOrders = models.IntegerField(blank=True, null = True)
     
+    @classmethod
+    def create(cls, deliveryNo, weight, datetime, noOfOrders):
+        delivery = cls(deliveryNo = deliveryNo, weight = weight, datetime = datetime, noOfOrders = noOfOrders);
+        return delivery
+
     def __str__(self):
         return str(self.deliveryNo)
+
    
 
 class Item(models.Model):
@@ -48,7 +58,7 @@ class Item(models.Model):
     description = models.CharField(max_length=2000)
     qty_avail = models.IntegerField(blank=True, null = True)
     category = models.CharField(max_length=200, choices = CATEGORY_SET, default = IV)
-    profile_image = models.ImageField(upload_to="gallery", default = "gallery")
+    profile_image = models.ImageField()
     urlroot = "Users/anujkapur/Documents/GitHub/Dromed/"
 
     def __str__(self):
@@ -77,7 +87,9 @@ class Order(models.Model):
     ('N', 'New'),
     ('D', 'Dequeued'))
     lastorder = 0
+
     orderNo = models.IntegerField()
+    assigned = models.BooleanField(default = False)
     priority = models.CharField(max_length=200, choices = PRIORITY_SET, default = U)
     orderStatus = models.CharField(max_length=200, choices = ORDER_STATUS, default = 'QFP')
     weight = models.FloatField(blank = True, null = True) 
@@ -89,8 +101,8 @@ class Order(models.Model):
     deliveryNo = models.ForeignKey(Delivery, on_delete=models.SET_NULL, blank = True, null = True)
 
     @classmethod
-    def create(cls, orderNo, noOfItems = 0, priority = L, orderStatus = 'QFP', weight = 0):
-        order = cls(orderNo = orderNo, noOfItems = noOfItems, priority = priority, orderStatus = orderStatus, weight = weight);
+    def create(cls, orderNo, datetime, noOfItems = 0, priority = L, orderStatus = 'QFP', weight = 0):
+        order = cls(orderNo = orderNo, noOfItems = noOfItems, priority = priority, orderStatus = orderStatus, weight = weight, datetime = datetime);
         return order
 
     def __str__(self):
@@ -106,3 +118,17 @@ class Item_Asoc_Order(models.Model):
         asoc = cls(orderNo = orderNo, itemNo = itemNo, qty = qty);
         return asoc
  
+class Order_Asoc_Delivery(models.Model):
+
+    orderNo = models.IntegerField()
+    deliveryNo = models.IntegerField()
+
+    @classmethod
+    def create(cls, orderNo, deliveryNo):
+        asoc = cls(orderNo = orderNo, deliveryNo = deliveryNo);
+        return asoc
+
+class StoredValues(models.Model):
+
+    latestOrderNo = models.IntegerField()
+    latestDeliveryNo = models.IntegerField()
