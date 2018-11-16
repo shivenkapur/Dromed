@@ -322,13 +322,12 @@ def login(request):
         password = request.POST.get('password')
         user = auth.authenticate(username=username, password=password)
         if user is not None:
-            """correct username and password login the user
-            if Users.objects.filter(username=username).role.filter(name='CM').exists():
+            if Users.objects.filter(role='CM'):
                 return HttpResponseRedirect('/order/')
-            elif Users.objects.filter(username=username).role.filter(name='WP').exists():
+            elif Users.objects.filter(role='WP'):
                 return HttpResponseRedirect('/newWP/')
-            else: """
-            return HttpResponseRedirect('/order/')
+            else:
+                return HttpResponseRedirect('/dispatcher/')
 
         else:
             messages.error(request, 'Error wrong username/password')
