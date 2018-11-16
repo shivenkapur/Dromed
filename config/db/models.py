@@ -108,8 +108,8 @@ class Users(models.Model):
     clinic = models.ForeignKey(ClinicLocation, on_delete=models.CASCADE, null = True)
 
     @classmethod
-    def create(cls, firstname, lastname, username, password, role, emailID):
-        user = cls(firstname = firstname, lastname = lastname, username = username, password = password, role = role, emailID = emailID);
+    def create(cls, firstname, lastname, username, password):
+        user = cls(firstname = firstname, lastname = lastname, username = username, password = password);
         return user
 
     def _str_(self):

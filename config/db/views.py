@@ -175,14 +175,14 @@ class Submit(views.CsrfExemptMixin, View):
         
         form = NameForm(request.POST)
         # Send an email for token value
-        
+        print("fkw")
         if form.is_valid():
             print(form.cleaned_data)
             # Verifying the token value with the one sent in HA email
-            
+            print("fk")
             # Verifying that the username is unique
             if Users.objects.filter(username = form.cleaned_data['username']).count() == 0:
-                user = Users.create(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname'], username = form.cleaned_data['username'], password = form.cleaned_data['password'], role = form.cleaned_data['role'], emailID = 'vanshajchadha05@gmail.com')
+                user = Users.create(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname'], username = form.cleaned_data['username'], password = form.cleaned_data['password'])
                 user.save()
                 print("New Username")
                     
@@ -191,7 +191,7 @@ class Submit(views.CsrfExemptMixin, View):
                 
             # Setting the default email to the HA email
             
-        return HttpResponseRedirect('/register/')
+        return HttpResponseRedirect('/login/')
 
 
 def login(request):
@@ -201,8 +201,12 @@ def login(request):
         password = request.POST.get('password')
         user = auth.authenticate(username=username, password=password)
         if user is not None:
-            # correct username and password login the user
-            auth.login(request, user)
+            """correct username and password login the user
+            if Users.objects.filter(username=username).role.filter(name='CM').exists():
+                return HttpResponseRedirect('/order/')
+            elif Users.objects.filter(username=username).role.filter(name='WP').exists():
+                return HttpResponseRedirect('/newWP/')
+            else: """
             return HttpResponseRedirect('/order/')
 
         else:
