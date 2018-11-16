@@ -28,15 +28,18 @@
 <div class="row justify-content-md-center">
 
     {% for item in Items %}
-    <div class="col-md-2 col-sm-3 col-xs-4 product text-center">
-        <img src="{% static "db/B_Braun_Lactated_Ringers_250ml.JPG" %}" class="img-fluid prodimg" alt="Responsive image">
     
+    <div class="col-md-2 col-sm-3 col-xs-4 product text-center">
+        <img src="{{item.profile_image.url}}" class="img-fluid prodimg" alt="Responsive image">
+        
       
       <strong>{{item.description}}</strong>
       <br>
       <text>{{item.weight}}</text>
       <br>
-      <button class = "btn btn-default btn-primary addtocart"  id = "{{item.itemNo}}" onclick="myFunction(this.id, '{{item.description}}', {{item.weight}})">ADD TO CART</button>
+      <button class = "btn btn-default btn-primary addtocart"  id = "{{item.itemNo}}" 
+      onclick="myFunction(this.id, '{{item.description}}', {{item.weight}}, '{{item.profile_image.url}}')">ADD TO CART
+      </button>
     </div>
     {% endfor %}
 
@@ -62,17 +65,17 @@
         <div class = "mt-1" style = "font-size:17px;">ORDER PRIORITY</div>
 
         <div class = "ml-5 pl-5 text-center">
-          <button class = "btn ml-3 mb-1" onclick = "priority(this.id)" id = 'high' style = "height:23px;width:10px;background-color: #A02104; border-radius:0px;"></button>
+          <button class = "btn ml-3 mb-1" onclick = "priority(this.id)" id = 'High' style = "height:23px;width:10px;background-color: #A02104; border-radius:0px;"></button>
           <p><strong>High</strong></p>
         </div>
 
         <div class = "ml-5 text-center">
-          <button class = "btn mb-1" onclick = "priority(this.id)" id = 'medium' style = "height:23px;width:10px;background-color: #E2ED00;border-radius:0px;"></button>
+          <button class = "btn mb-1" onclick = "priority(this.id)" id = 'Medium' style = "height:23px;width:10px;background-color: #E2ED00;border-radius:0px;"></button>
           <p><strong>Medium</strong></p>
         </div>
 
         <div class = "ml-5 text-center">
-          <button class = "btn no-radius mb-1" onclick = "priority(this.id)" id = 'low' style = "height:23px;width:10px;background-color: #00A51F;border-radius:0px;"></button>
+          <button class = "btn no-radius mb-1" onclick = "priority(this.id)" id = 'Low' style = "height:23px;width:10px;background-color: #00A51F;border-radius:0px;"></button>
           <p><strong>Low</strong></p>
 
         </div>
