@@ -3,7 +3,6 @@ from django.contrib import admin
 # Register your models here.
 
 
-from .models import Delivery,Users,Item,Order, ClinicLocation, Item_Asoc_Order, Order_Asoc_Delivery, StoredValues
 
 admin.site.register(Delivery)
 admin.site.register(Item)

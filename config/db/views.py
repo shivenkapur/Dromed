@@ -13,7 +13,10 @@ from django.urls import reverse
 from .models import *
 import json
 from django.contrib import auth, messages
+<<<<<<< HEAD
 from django.contrib.auth.models import User
+=======
+>>>>>>> AlgorithmBranch
 
 # Create your views here.
 
@@ -152,7 +155,6 @@ class PDF(views.CsrfExemptMixin, View):
         # Render the HTML template index.html with the data in the context variable
         # return render(request, 'db/dequeuedWP.html', context)
 
-class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
     require_json = True
     def post(self, request, *args, **kwargs):
         
@@ -217,6 +219,8 @@ class CompleteOrder(views.CsrfExemptMixin, View):
         
 def reg(request):
     return render(request, 'db/signup.html')
+
+
 
 class Submit(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
