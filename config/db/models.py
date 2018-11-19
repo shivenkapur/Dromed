@@ -127,7 +127,6 @@ class Users(models.Model):
     def _str_(self):
         return str(self.firstname)
 
-
  
 class Order_Asoc_Delivery(models.Model):
 

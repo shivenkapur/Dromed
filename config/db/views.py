@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from db.models import Item, Order, Item_Asoc_Order, Users
-from db.models import Item, Order, Item_Asoc_Order, Delivery, Order_Asoc_Delivery, StoredValues
+from db.models import Item, Order, Item_Asoc_Order, Users, Delivery, Order_Asoc_Delivery, StoredValues
 from django.views.generic import View
 from braces import views
 from django.http import FileResponse, HttpResponseRedirect
@@ -14,6 +13,7 @@ from django.urls import reverse
 from .models import *
 import json
 from django.contrib import auth, messages
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -62,8 +62,6 @@ def new_D(request):
     objects = Delivery.objects.all()
 
     orders = Order.objects.all()
-    
-    
 
 
     #create delivery and assign stuff
@@ -122,24 +120,6 @@ def new_D(request):
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dispatcher.html', context)
 
-
-def pdf_generation(request):
-    #buffer = io.BytesIO()
-    p = canvas.Canvas('db/shipping_label.pdf')
-    
-    # json =
-    
-    p.drawString(245, 750, 'SHIPPING LABEL')
-    p.drawString(100, 650, 'Order Number:')
-    p.drawString(100, 600, 'List of Items:')
-    p.drawString(100, 550, 'Final Destination:')
-    
-    p.showPage()
-    p.save()
-    
-    response = redirect('/dispatcher/')
-    return response
-
 class Submit(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
         
@@ -170,9 +150,11 @@ class PDF(views.CsrfExemptMixin, View):
         
         order_num = request.META['QUERY_STRING']
         obj = Order.objects.filter(orderNo = int(order_num))
+        #print(obj)
 
-        for i in obj:
-            print(i.clinicManager_location.all())
+        #for i in obj:
+            #print(i)
+            #print(i.clinicManager_location)
         
         p.drawString(245, 750, 'SHIPPING LABEL')
         p.drawString(100, 650, 'Order Number: ' + order_num)
@@ -181,49 +163,17 @@ class PDF(views.CsrfExemptMixin, View):
         p.showPage()
         p.save()
 
-        context = {
-            'Delivery': objects,
-        }
+        #context = {
+        #   'Delivery': objects,
+        #}
 
         response = FileResponse(open('db/shipping_label.pdf', 'rb'), content_type='application/pdf')
-        response['Content-Disposition'] = 'inline'
+        response['Content-Disposition'] = 'attachment'
         print(response)
-                
         return response
-    # Render the HTML template index.html with the data in the context variable
-    #return render(request, 'db/dequeuedWP.html', context)
-    
-        
-            
-
-        orderNo = 0
-        for value in StoredValues.objects.all():
-            orderNo = value.latestOrderNo
-            value.latestOrderNo +=1
-            value.save()
-
-        quantity = 0
-        weight = 0
-        objects = json.loads(request.body)
-        print(objects)
-        items = Item.objects.all();
-        
-        i = 0
-        priority = ''
-        for obj in objects:
-            if i == 0:
-                priority = obj['priority']
-                i+=1
-            else:
-                item_asoc_order = Item_Asoc_Order.create(itemNo= int(obj['itemNo']), orderNo = orderNo, qty = obj['quantity'])
-                item_asoc_order.save();
-                quantity += int(obj['quantity'])
-                weight += int(obj['quantity']) * obj['weight']
-
-
-        now = datetime.datetime.now()
-        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority, datetime = now)
-        order.save();
+        # return HttpResponse('<a target="_blank" href="db/shipping_label.pdf">pdf</a>')
+        # Render the HTML template index.html with the data in the context variable
+        # return render(request, 'db/dequeuedWP.html', context)
 
 class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
     require_json = True

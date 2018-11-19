@@ -128,7 +128,7 @@
 
         dict[clicked_id] = 1;
         htmltext =
-        '<div class = "text-center"><button class = "btn btn-secondary" onclick = sendData('+clicked_id+') style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD CSV</strong></button></div>';
+        '<div class = "text-center"><a href = "/dispatcher/warehouse/pdf/?'+clicked_id+'"><button class = "btn btn-secondary" style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD CSV</strong></button></a></div>';
 
         $('#append').html(htmltext);
     }
@@ -143,7 +143,7 @@
       $.get(url, data)
 
       .done(function(data){
-        //window.open(escape(data));
+       
       });
       
     }
@@ -166,25 +166,6 @@
       })
       .always(function() {
        });
-
-    }
-
-    function sendData(clicked_id)
-    {
-      
-      url = "warehouse/pdf/";
-
-      data = String(clicked_id)
-
-      $.post(url, data)
-      .done(function() {
-          
-      })
-      .fail(function() {
-      })
-      .always(function() {
-       });
-
     }
 
   </script>
