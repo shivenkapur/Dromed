@@ -168,6 +168,7 @@ def new_D(request):
     # Render the HTML template index.html with the data in the context variable
     hi = [1,4,5,6,7]
     travellingSalesmanAlgorithm(hi)
+
     return render(request, 'db/dispatcher.html', context)
 
 class PDF(views.CsrfExemptMixin, View):
