@@ -120,29 +120,6 @@ def new_D(request):
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dispatcher.html', context)
 
-class Submit(views.CsrfExemptMixin, View):
-    def post(self, request, *args, **kwargs):
-        
-        form = NameForm(request.POST)
-        # Send an email for token value
-        
-        if form.is_valid():
-            print(form.cleaned_data)
-            # Verifying the token value with the one sent in HA email
-            
-            # Verifying that the username is unique
-            if Users.objects.filter(username = form.cleaned_data['username']).count() == 0:
-                user = Users.create(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname'], username = form.cleaned_data['username'], password = form.cleaned_data['password'], role = form.cleaned_data['role'], emailID = 'vanshajchadha05@gmail.com')
-                user.save()
-                print("New Username")
-                    
-            else:
-                print("Old Username")
-                
-            # Setting the default email to the HA email
-            
-        return HttpResponseRedirect('/register/')
-
 class PDF(views.CsrfExemptMixin, View):
     def get(self, request, *args, **kwargs):
         
