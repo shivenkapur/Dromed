@@ -114,6 +114,47 @@ def new_D(request):
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dispatcher.html', context)
+def travellingSalesmanAlgorithm(clinicLocations):
+    clinicAsoc = dict()
+    clinics = ClinicLocation.objects.all();
+
+    for clinic in clinics:
+        obj1 = clinicAsocclinic.objects.filter(clinicID1 = clinic.clinicID)
+        obj2 = clinicAsocclinic.objects.filter(clinicID2 = clinic.clinicID)
+        for obj in obj1:
+            clinicAsoc[(clinic.clinicID,obj.clinicID2)] = obj.distance
+
+        for obj in obj2: 
+            clinicAsoc[(clinic.clinicID,obj.clinicID1)] = obj.distance
+
+    frontier = []
+    hospitalID = 8 
+    for clinicLocation in clinicLocations:
+        frontier.append((clinicAsoc[(8, clinicLocation)] , clinicLocation))
+    n = 0
+
+    checker = set()
+    length = len(clinicLocations)
+    while n<length:
+        node = remove(min(frontier, key = lambda x: x[0]), frontier)
+        print(node)
+        checker.add(node[1])
+        frontier = []
+        for clinicLocation in clinicLocations:
+            if clinicLocation not in checker:
+                frontier.append((clinicAsoc[(node[1], clinicLocation)] , clinicLocation))
+        n+=1
+
+
+def remove(n, frontier):
+    element = 0
+    for i in range(0,len(frontier)):
+        if frontier[i][0] == n[0] :
+            element = frontier[i]
+            for j in range(i,len(frontier)-1):
+                frontier[j]=frontier[j+1]
+            del frontier[len(frontier)-1]
+            return element
 
 class PDF(views.CsrfExemptMixin, View):
     def get(self, request, *args, **kwargs):
