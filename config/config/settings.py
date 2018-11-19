@@ -25,6 +25,17 @@ SECRET_KEY = '78q8#(&!p3#bh&2f=*iwf)ty44!hqyg18&93fn9f6u_d8-@x3n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'dromed007@gmail.com'
+EMAIL_HOST_PASSWORD = 'drone007admin'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_SUBJECT_PREFIX = '[Test mail]'
+
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 

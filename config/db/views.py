@@ -17,6 +17,9 @@ import json
 from django.contrib import auth, messages
 from django.contrib.auth.models import User
 # Create your views here.
+from django.core.mail import send_mail
+
+
 
 def item_view(request):
     context_object_name = 'Items'
@@ -112,7 +115,8 @@ def new_D(request):
         deliveryNo+=1
     storedValueobj.latestDeliveryNo = deliveryNo
     storedValueobj.save()
-    
+    send_mail('Subject here', 'Here is the message.', 'shivenkapur04@gmail.com', ['shivenkapur04@gmail.com'], fail_silently=False)
+
 
 
     #travellingSalesmanAlgorithm([1,4,6,7])
