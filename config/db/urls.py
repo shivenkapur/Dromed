@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     path('order/', views.item_view, name = 'items-view'),
-    path('order/send/', views.ContactSendView.as_view(), name = 'send'),
+    path('order/send/', views.OrderView.as_view(), name = 'send'),
     path('newWP/', views.new_WP, name = 'newWP'),
     path('dequeueWP/', views.dequeue_WP, name = 'dequeuedWP'),
     path('dispatcher/', views.new_D, name = 'dequeuedWP'),
@@ -14,4 +14,5 @@ urlpatterns = [
     path('login/', views.login, name='login'),
 	path('register/', views.reg, name = 'register'),
     path('register/submit/', views.Submit.as_view(), name = 'submission'),
+    path('registration/', views.register, name = 'register'),
 ]

@@ -14,6 +14,10 @@ from django.urls import reverse
 from .models import *
 import json
 from django.contrib import auth, messages
+from django.utils.crypto import constant_time_compare, salted_hmac
+from django.utils.http import base36_to_int, int_to_base36
+from heapq import heappush, heappop
+
 
 # Create your views here.
 
@@ -56,6 +60,36 @@ def dequeue_WP(request):
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dequeuedWP.html', context)
+
+def travellingSalesmanAlgorithm(clinicLocations):
+    clinicAsoc = dict()
+    clinics = ClinicLocation.objects.all();
+
+    for clinic in clinics:
+        obj1 = clinicAsocclinic.objects.filter(clinicID1 = clinic.clinicID)
+        obj2 = clinicAsocclinic.objects.filter(clinicID2 = clinic.clinicID)
+        for obj in obj1:
+            clinicAsoc[(clinic.clinicID,obj.clinicID2)] = obj.distance
+
+        for obj in obj2: 
+            clinicAsoc[(clinic.clinicID,obj.clinicID1)] = obj.distance
+
+    frontier = []
+    hospitalID = 8 
+    for clinicLocation in clinicLocations:
+        frontier.append((clinicAsoc[(8, clinicLocation)] , clinicLocation))
+    n = 0
+    checker = set()
+    length = len(clinicLocations)
+    while n<length:
+        node = frontier.remove(min(frontier))
+        ##goalstate?
+        checker.add(node[1])
+        frontier = []
+        for clinicLocation in clinicLocations:
+            if clinicLocation not in checker:
+                frontier.append(( clinicAsoc[(node[1], clinicLocation)] , clinicLocation)) 
+        n+=1
 
 def new_D(request):
     context_object_name = 'Delivery'
@@ -120,6 +154,8 @@ def new_D(request):
         'Delivery': objects,
     }
     # Render the HTML template index.html with the data in the context variable
+    hi = [1,4,5,6,7]
+    travellingSalesmanAlgorithm(hi)
     return render(request, 'db/dispatcher.html', context)
 
 
@@ -225,7 +261,7 @@ class PDF(views.CsrfExemptMixin, View):
         order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority, datetime = now)
         order.save();
 
-class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
+class OrderView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
     require_json = True
     def post(self, request, *args, **kwargs):
         
@@ -291,6 +327,8 @@ class CompleteOrder(views.CsrfExemptMixin, View):
 def reg(request):
     return render(request, 'db/signup.html')
 
+
+
 class Submit(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
         
@@ -335,4 +373,19 @@ def login(request):
 
     return render(request, 'db/login.html')
 
+def register(request):
+    # Render the HTML template index.html with the data in the context variable
+    return render(request, 'db/forms.html')
+
+class Register(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
+    require_json = True
+    def post(self, request, *args, **kwargs):
+
+        quantity = 0
+        weight = 0
+        objects = json.loads(request.body)
+        print(objects)
+
+        return self.render_json_response(
+            {"message": "Your contact has been sent!"})
 
