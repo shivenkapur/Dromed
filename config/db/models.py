@@ -4,14 +4,8 @@ from django.db import models
 # Create your models here.
 
 
-class clinicAsocclinic(models.Model):
-    clinicID1 = models.IntegerField()
-    clinicID2 = models.IntegerField()
-    distance = models.FloatField()
-    
 
 class ClinicLocation(models.Model):
-    clinicID = models.IntegerField(blank = True, null = True)
     clinicLocation = models.CharField(max_length=200)
     latitude = models.FloatField() 
     longitude = models.FloatField() 
