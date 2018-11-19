@@ -8,7 +8,7 @@ urlpatterns = [
     path('newWP/', views.new_WP, name = 'newWP'),
     path('dequeueWP/', views.dequeue_WP, name = 'dequeuedWP'),
     path('dispatcher/', views.new_D, name = 'dequeuedWP'),
-    path('warehouse/pdf/', views.pdf_generation, name = 'pdf-creation'),
+    path('warehouse/pdf/', views.PDF.as_view(), name = 'pdf-creation'),
     path('newWP/change/', views.DequeueOrder.as_view(), name = 'dequeue'),
     path('dequeueWP/complete/', views.CompleteOrder.as_view(), name = 'dequeue')
 

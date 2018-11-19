@@ -115,22 +115,70 @@ def new_D(request):
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dispatcher.html', context)
 
-def pdf_generation(request):
-    #buffer = io.BytesIO()
-    p = canvas.Canvas('db/shipping_label.pdf')
-    
-    # json =
-    
-    p.drawString(245, 750, 'SHIPPING LABEL')
-    p.drawString(100, 650, 'Order Number:')
-    p.drawString(100, 600, 'List of Items:')
-    p.drawString(100, 550, 'Final Destination:')
-    
-    p.showPage()
-    p.save()
-    
-    response = redirect('/dispatcher/')
-    return response
+class PDF(views.CsrfExemptMixin, View):
+    def get(self, request, *args, **kwargs):
+
+        p = canvas.Canvas('db/shipping_label.pdf')
+
+        order_num = request.META['QUERY_STRING']
+        obj = Order.objects.filter(orderNo = int(order_num))
+        #print(obj)
+
+        #for i in obj:
+            #print(i)
+            #print(i.clinicManager_location)
+
+        p.drawString(245, 750, 'SHIPPING LABEL')
+        p.drawString(100, 650, 'Order Number: ' + order_num)
+        p.drawString(100, 600, 'List of Items: ')
+        #p.drawString(100, 550, 'Final Destination: ' + obj[0].ClinicLocation.clinicLocation)
+        p.showPage()
+        p.save()
+
+        #context = {
+        #   'Delivery': objects,
+        #}
+
+        response = FileResponse(open('db/shipping_label.pdf', 'rb'), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment'
+        print(response)
+        return response
+
+
+    require_json = True
+    def post(self, request, *args, **kwargs):
+
+        orderNo = 0
+        for value in StoredValues.objects.all():
+            orderNo = value.latestOrderNo
+            value.latestOrderNo +=1
+            value.save()
+
+        quantity = 0
+        weight = 0
+        objects = json.loads(request.body)
+        print(objects)
+        items = Item.objects.all();
+
+        i = 0
+        priority = ''
+        for obj in objects:
+            if i == 0:
+                priority = obj['priority']
+                i+=1
+            else:
+                item_asoc_order = Item_Asoc_Order.create(itemNo= int(obj['itemNo']), orderNo = orderNo, qty = obj['quantity'])
+                item_asoc_order.save();
+                quantity += int(obj['quantity'])
+                weight += int(obj['quantity']) * obj['weight']
+
+
+        now = datetime.datetime.now()
+        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority, datetime = now)
+        order.save();
+
+        return self.render_json_response(
+            {"message": "Your contact has been sent!"})
 
 class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
     require_json = True
