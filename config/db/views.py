@@ -60,7 +60,6 @@ def dequeue_WP(request):
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dequeuedWP.html', context)
 
-
 def new_D(request):
     context_object_name = 'Delivery'
     objects = Delivery.objects.all()
