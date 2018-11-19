@@ -111,17 +111,18 @@ class Item_Asoc_Order(models.Model):
 
 class Users(models.Model):
     
-    firstname = models.CharField(max_length=200)
-    lastname = models.CharField(max_length=200)
-    username = models.CharField(max_length=200, primary_key = True)
-    password = models.CharField(max_length=200)
+    firstname = models.CharField(max_length=200, null = True, blank = True)
+    lastname = models.CharField(max_length=200, null = True, blank = True)
+    username = models.CharField(max_length=200, null = True, blank = True)
+    password = models.CharField(max_length=200, null = True, blank = True)
     role = models.CharField(max_length=200)
-    emailID = models.EmailField()
-    clinic = models.ForeignKey(ClinicLocation, on_delete=models.CASCADE, null = True)
+    emailID = models.EmailField(primary_key = True)
+    token = models.CharField(max_length=200, null = True, blank = True)
+    clinic = models.ForeignKey(ClinicLocation, on_delete=models.CASCADE, null = True, blank = True)
 
     @classmethod
-    def create(cls, firstname, lastname, username, password):
-        user = cls(firstname = firstname, lastname = lastname, username = username, password = password);
+    def create(cls, firstname, lastname, username, password, role):
+        user = cls(firstname = firstname, lastname = lastname, username = username, password = password, role = role);
         return user
 
     def _str_(self):

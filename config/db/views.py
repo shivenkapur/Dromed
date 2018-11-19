@@ -230,28 +230,41 @@ class Submit(views.CsrfExemptMixin, View):
             print("fk")
             # Verifying that the username is unique
             if Users.objects.filter(username = form.cleaned_data['username']).count() == 0:
-                user = Users.create(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname'], username = form.cleaned_data['username'], password = form.cleaned_data['password'])
-                user.save()
-                print("New Username")
+                user = Users.objects.filter(token = form.cleaned_data['token'])
+                if user:
+                    user[0].firstname = form.cleaned_data['firstname']
+                    user[0].lastname = form.cleaned_data['lastname']
+                    user[0].username = form.cleaned_data['username']
+                    user[0].password = form.cleaned_data['password']
+                    user[0].save()
+                    print("New Username")
+                    return HttpResponseRedirect('/login/')
                     
             else:
                 print("Old Username")
-                
+
+        return render(request, 'db/signup.html')   
             # Setting the default email to the HA email
             
-        return HttpResponseRedirect('/login/')
+        
+def authenticate(username, password):
+    users = Users.objects.all();
+    for user in users:
+        if(username == user.username and password == user.password):
+            return user
 
-
+    return False
 def login(request):
  
     if request.method == 'POST':
+        
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = auth.authenticate(username=username, password=password)
-        if user is not None:
-            if Users.objects.filter(role='CM'):
+        user = authenticate(username,password)
+        if user:
+            if user.role=='CM':
                 return HttpResponseRedirect('/order/')
-            elif Users.objects.filter(role='WP'):
+            elif user.role=='WP':
                 return HttpResponseRedirect('/newWP/')
             else:
                 return HttpResponseRedirect('/dispatcher/')

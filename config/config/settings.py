@@ -31,6 +31,11 @@ MEDIA_URL = '/media/'
 
 ALLOWED_HOSTS = []
 
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'DroMed'
+EMAIL_HOST_PASSWORD = 'anant'
+EMAIL_USE_TLS = True
 
 # Application definition
 
@@ -42,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.mail'
 ]
 
 MIDDLEWARE = [
