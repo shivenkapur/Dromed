@@ -14,9 +14,9 @@ from django.urls import reverse
 from .models import *
 import json
 from django.contrib import auth, messages
-from django.utils.crypto import constant_time_compare, salted_hmac
-from django.utils.http import base36_to_int, int_to_base36
+from django.contrib.auth.models import User
 from heapq import heappush, heappop
+import csv
 
 
 # Create your views here.
@@ -79,17 +79,30 @@ def travellingSalesmanAlgorithm(clinicLocations):
     for clinicLocation in clinicLocations:
         frontier.append((clinicAsoc[(8, clinicLocation)] , clinicLocation))
     n = 0
+
     checker = set()
     length = len(clinicLocations)
     while n<length:
-        node = frontier.remove(min(frontier))
-        ##goalstate?
+        node = remove(min(frontier, key = lambda x: x[0]), frontier)
+        print(node)
         checker.add(node[1])
         frontier = []
         for clinicLocation in clinicLocations:
             if clinicLocation not in checker:
-                frontier.append(( clinicAsoc[(node[1], clinicLocation)] , clinicLocation)) 
+                frontier.append((clinicAsoc[(node[1], clinicLocation)] , clinicLocation))
         n+=1
+
+
+def remove(n, frontier):
+    element = 0
+    for i in range(0,len(frontier)):
+        if frontier[i][0] == n[0] :
+            element = frontier[i]
+            for j in range(i,len(frontier)-1):
+                frontier[j]=frontier[j+1]
+            del frontier[len(frontier)-1]
+            return element
+
 
 def new_D(request):
     context_object_name = 'Delivery'
