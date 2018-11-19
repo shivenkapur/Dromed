@@ -1,0 +1,56 @@
+{% extends "db/base.html" %}
+
+{% block content %}
+<form>
+	<div class="row justify-content-md-center row1">
+		<div class="col-md-4 col-sm-4 col-xs-4 product text-center"></div>
+
+		<div class="col-md-4 col-sm-4 col-xs-4 product text-center">
+	 		<div class="form-group">
+		    	<label for="exampleInputEmail1">Email address</label>
+		    	<input type="email" class="form-control" id="Email" aria-describedby="emailHelp" placeholder="Enter email">
+	  		</div>
+		  	<div class="form-group">
+		    	<label for="exampleInputPassword1">Password</label>
+		    	<input type="password" class="form-control" id="password1" placeholder="Password">
+		  	</div>
+		  	<div class="form-group">
+		    	<label for="exampleInputPassword1">Rewrite Password</label>
+		    	<input type="password" class="form-control" id="password2" placeholder="Rewrite Password">
+	  		</div>
+	  		<div class="form-group">
+		    	<label for="token">Token</label>
+		    	<input type="alphanumeric" class="form-control" id="token" placeholder="Token">
+	  		</div>
+	  		<button class="btn btn-primary" onclick = "sendData()">Submit</button>
+  		</div>
+
+
+  		<div class="col-md-4 col-sm-4 col-xs-4 product text-center"></div>
+  	</div>
+</form>
+
+<script type="text/javascript">
+
+	function sendData()
+	{
+		url = "submi/";
+
+		email = $('#Email').val();
+		password = $('#password1').val();
+		token = $('#token').val();
+		data = [email,password,token]
+		$.post(url, data)
+		.done(function() {
+		  
+		})
+		.fail(function() {
+		})
+		.always(function() {
+		});
+
+
+	}
+
+</script>
+{% endblock %}
