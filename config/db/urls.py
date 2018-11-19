@@ -10,6 +10,8 @@ urlpatterns = [
     path('dispatcher/', views.new_D, name = 'dequeuedWP'),
     path('warehouse/pdf/', views.PDF.as_view(), name = 'pdf-creation'),
     path('newWP/change/', views.DequeueOrder.as_view(), name = 'dequeue'),
-    path('dequeueWP/complete/', views.CompleteOrder.as_view(), name = 'dequeue')
-
+    path('dequeueWP/complete/', views.CompleteOrder.as_view(), name = 'dequeue'),
+    path('login/', views.login, name = 'login'),
+    path('register/', views.reg, name = 'register'),
+    path('register/submit/', views.Submit.as_view(), name = 'submit')
 ]

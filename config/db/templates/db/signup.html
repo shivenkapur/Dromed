@@ -1,0 +1,86 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    
+    <link rel="stylesheet" href="{% static 'db/stylesheet.css' %}" type = "text/css">
+
+  </head>
+  <body>
+    <!--Navbar--> 
+    <nav class = "navbar navbar-default" role = "navigation">
+    
+      <div class="row">
+        
+        <div class="col-md-1 col-sm-1 col-xs-1">
+
+          <div class="navbar-header">
+
+            <!--Dromed Logo on the left--> 
+            <a class="navbar-brand" href="#">
+              <!--glyphicon needs to be changed to image--> 
+              <font size="+2" face = "Optima">
+              DroMED</font>
+            </a>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </nav>
+
+    <!--Span fading line--> 
+    <span class="line"></span>
+
+    <form action="/register/submit/" method="post">
+	Token:<br>
+	<input type="text" name="token" id="token"><br>
+    First name:<br>
+    <input type="text" name="firstname" id="first_name"><br>
+    Last name:<br>
+	<input type="text" name="lastname" id="last_name"><br>
+    
+    Username:<br>
+    <input type="text" name="username" id="username"><br>
+    Password:<br>
+    <input type="password" name="password" id="password"><br>
+    <br>
+    <input type="submit" value="Submit">
+    </form>
+
+
+    <script type="text/javascript">
+
+    function myFunction(clicked_id){
+    	window.location.href("/login/")
+    }
+
+    </script>
+
+  </body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

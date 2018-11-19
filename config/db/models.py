@@ -18,14 +18,25 @@ class ClinicLocation(models.Model):
     distance = models.FloatField()
 """
 
-class ClinicManager(models.Model):
+class Users(models.Model):
+    firstname = models.CharField(max_length=200, null = True, blank = True)
+    lastname = models.CharField(max_length=200, null = True, blank = True)
+    username = models.CharField(max_length=200, null = True, blank = True)
+    password = models.CharField(max_length=200, null = True, blank = True)
+    role = models.CharField(max_length=200)
+    emailID = models.EmailField(primary_key = True)
+    token = models.CharField(max_length=200, null = True, blank = True)
+    clinic = models.ForeignKey(ClinicLocation, on_delete=models.CASCADE, null = True, blank = True)
+    
 
-    username = models.CharField(max_length=200)
-    name = models.CharField(max_length=200)
-    clinicLocation = models.ForeignKey(ClinicLocation,null = True, blank = True, on_delete=models.SET_NULL)
+    @classmethod
+    def create(cls, firstname, lastname, username, password, role):
+        user = cls(firstname = firstname, lastname = lastname, username = username, password = password, role = role);
+        return user
+    
 
-    def __str__(self):
-        return self.name
+    def _str_(self):
+        return str(self.firstname)
 
 class Delivery(models.Model):
     
@@ -132,3 +143,4 @@ class StoredValues(models.Model):
 
     latestOrderNo = models.IntegerField()
     latestDeliveryNo = models.IntegerField()
+

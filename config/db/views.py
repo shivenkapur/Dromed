@@ -1,14 +1,21 @@
+
+import datetime
 from django.shortcuts import render
-from db.models import Item, Order, Item_Asoc_Order, Delivery, Order_Asoc_Delivery, StoredValues
+from db.models import Item, Order, Item_Asoc_Order, Users, Delivery, Order_Asoc_Delivery, StoredValues
 from django.views.generic import View
 from braces import views
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponseRedirect
 from reportlab.pdfgen import canvas
 from django.shortcuts import redirect
+from .forms import NameForm
 from django.http import HttpResponse
 import datetime
-
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
+from .models import *
 import json
+from django.contrib import auth, messages
+from django.contrib.auth.models import User
 # Create your views here.
 
 def item_view(request):
@@ -108,12 +115,23 @@ def new_D(request):
     
 
 
-
+    #travellingSalesmanAlgorithm([1,4,6,7])
     context = {
         'Delivery': objects,
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dispatcher.html', context)
+
+
+
+
+
+
+
+
+
+
+#Algorithm
 def travellingSalesmanAlgorithm(clinicLocations):
     clinicAsoc = dict()
     clinics = ClinicLocation.objects.all();
@@ -155,6 +173,11 @@ def remove(n, frontier):
                 frontier[j]=frontier[j+1]
             del frontier[len(frontier)-1]
             return element
+
+
+#PDF
+
+
 
 class PDF(views.CsrfExemptMixin, View):
     def get(self, request, *args, **kwargs):
@@ -221,6 +244,19 @@ class PDF(views.CsrfExemptMixin, View):
         return self.render_json_response(
             {"message": "Your contact has been sent!"})
 
+
+
+
+
+
+
+
+
+
+
+#Orders and WP
+
+
 class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
     require_json = True
     def post(self, request, *args, **kwargs):
@@ -284,3 +320,85 @@ class CompleteOrder(views.CsrfExemptMixin, View):
             print(order.orderStatus)
         return HttpResponse('')
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Login
+def reg(request):
+    return render(request, 'db/signup.html')
+
+
+
+
+
+class Submit(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        
+
+        form = NameForm(request.POST)
+        # Send an email for token value
+        print("fkw")
+        if form.is_valid():
+            print(form.cleaned_data)
+            # Verifying the token value with the one sent in HA email
+            print("fk")
+            # Verifying that the username is unique
+            if Users.objects.filter(username = form.cleaned_data['username']).count() == 0:
+                user = Users.objects.filter(token = form.cleaned_data['token'])
+                if user:
+                    user[0].firstname = form.cleaned_data['firstname']
+                    user[0].lastname = form.cleaned_data['lastname']
+                    user[0].username = form.cleaned_data['username']
+                    user[0].password = form.cleaned_data['password']
+                    user[0].save()
+                    print("New Username")
+                    return HttpResponseRedirect('/login/')
+        
+
+            else:
+                print("Old Username")
+        return render(request, 'db/signup.html')
+# Setting the default email to the HA email
+
+
+def authenticate(username, password):
+    users = Users.objects.all();
+    for user in users:
+        if(username == user.username and password == user.password):
+            return user
+
+    return False
+
+def login(request):
+    
+
+    if request.method == 'POST':
+        
+
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username,password)
+        if user:
+            if user.role=='CM':
+                return HttpResponseRedirect('/order/')
+            elif user.role=='WP':
+                return HttpResponseRedirect('/newWP/')
+            else:
+                return HttpResponseRedirect('/dispatcher/')
+    
+
+        else:
+            messages.error(request, 'Error wrong username/password')
+
+    return render(request, 'db/login.html')
