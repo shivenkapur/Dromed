@@ -38,7 +38,7 @@
       <text>{{item.weight}}</text>
       <br>
       <button class = "btn btn-default btn-primary addtocart"  id = "{{item.itemNo}}" 
-      onclick="myFunction(this.id, '{{item.description}}', {{item.weight}}, '{{item.profile_image.url}}')>ADD TO CART
+      onclick="myFunction(this.id, '{{item.description}}', {{item.weight}}, '{{item.profile_image.url}}')">ADD TO CART
       </button>
     </div>
     {% endfor %}
@@ -59,7 +59,10 @@
       <div class = "row justify-content-md-center mb-1" id = "cartdiv">
 
       </div>
-
+      <div class = "row ml-5 mb-3" id = "totalweight">
+        TOTAL WEIGHT : 0 KGS
+      </div>
+      <hr>
       <div class = "row ml-5 mb-3" >
         
         <div class = "mt-1" style = "font-size:17px;">ORDER PRIORITY</div>

@@ -7,4 +7,5 @@ class NameForm(forms.Form):
     lastname = forms.CharField(max_length=100)
     username = forms.CharField(max_length=100)
     password = forms.CharField(max_length=100)
+    clinicLocation = forms.CharField(max_length=100)
 

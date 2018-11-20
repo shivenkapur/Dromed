@@ -1,7 +1,7 @@
 
 import datetime
 from django.shortcuts import render
-from db.models import Item, Order, Item_Asoc_Order, Users, Delivery, Order_Asoc_Delivery, StoredValues
+from db.models import Item, Order, Item_Asoc_Order, Users, Delivery, Order_Asoc_Delivery, StoredValues, Clinic_Asoc_Clinic
 from django.views.generic import View
 from braces import views
 from django.http import FileResponse, HttpResponseRedirect
@@ -18,10 +18,11 @@ from django.contrib import auth, messages
 from django.contrib.auth.models import User
 # Create your views here.
 from django.core.mail import send_mail
-
+import csv
 
 
 def item_view(request):
+
     context_object_name = 'Items'
     objects = Item.objects.all()
 
@@ -35,7 +36,7 @@ def item_view(request):
 def new_WP(request):
     context_object_name = 'Order'
 
-    order = Order.objects.filter().order_by('priority', ['High','Medium','Low'])
+    order = Order.objects.filter().order_by('priority')
     print(order)
     context = {
         'Order': order,
@@ -116,7 +117,6 @@ def new_D(request):
         deliveryNo+=1
     storedValueobj.latestDeliveryNo = deliveryNo
     storedValueobj.save()
-    send_mail('Subject here', 'Here is the message.', 'shivenkapur04@gmail.com', ['shivenkapur04@gmail.com'], fail_silently=False)
 
 
 
@@ -136,37 +136,45 @@ def new_D(request):
 
 
 
-#Algorithm
 def travellingSalesmanAlgorithm(clinicLocations):
     clinicAsoc = dict()
     clinics = ClinicLocation.objects.all();
 
     for clinic in clinics:
-        obj1 = clinicAsocclinic.objects.filter(clinicID1 = clinic.clinicID)
-        obj2 = clinicAsocclinic.objects.filter(clinicID2 = clinic.clinicID)
-        for obj in obj1:
-            clinicAsoc[(clinic.clinicID,obj.clinicID2)] = obj.distance
+        objects = Clinic_Asoc_Clinic.objects.filter(clinicID1 = clinic.clinicID)
+        
 
-        for obj in obj2: 
-            clinicAsoc[(clinic.clinicID,obj.clinicID1)] = obj.distance
+        for obj in objects:
+            clinicAsoc[(clinic.clinicID,obj.clinicID2)] = obj.distance
+            clinicAsoc[(obj.clinicID2,clinic.clinicID)] = obj.distance
+
 
     frontier = []
     hospitalID = 8 
+    print(clinicAsoc)
     for clinicLocation in clinicLocations:
         frontier.append((clinicAsoc[(8, clinicLocation)] , clinicLocation))
+    
+
     n = 0
 
     checker = set()
     length = len(clinicLocations)
+    answer = []
     while n<length:
         node = remove(min(frontier, key = lambda x: x[0]), frontier)
-        print(node)
+        print(answer)
+        answer.append(node[1])
         checker.add(node[1])
         frontier = []
         for clinicLocation in clinicLocations:
             if clinicLocation not in checker:
                 frontier.append((clinicAsoc[(node[1], clinicLocation)] , clinicLocation))
         n+=1
+    
+
+    answer.append(8)
+    return answer
 
 
 def remove(n, frontier):
@@ -190,17 +198,29 @@ class PDF(views.CsrfExemptMixin, View):
         p = canvas.Canvas('db/shipping_label.pdf')
 
         order_num = request.META['QUERY_STRING']
-        obj = Order.objects.filter(orderNo = int(order_num))
+        orders = Order.objects.filter(orderNo = int(order_num))
         #print(obj)
 
-        #for i in obj:
-            #print(i)
-            #print(i.clinicManager_location)
+        for i in orders:
+            print(i)
+            print(i.clinicManager_location)
 
         p.drawString(245, 750, 'SHIPPING LABEL')
         p.drawString(100, 650, 'Order Number: ' + order_num)
-        p.drawString(100, 600, 'List of Items: ')
-        #p.drawString(100, 550, 'Final Destination: ' + obj[0].ClinicLocation.clinicLocation)
+
+        y = 600
+        p.drawString(100, y, 'List of Items: ')
+        y-=50
+
+        i = 0
+        itemNos = Item_Asoc_Order.objects.filter(orderNo = int(order_num))
+        for itemNo in itemNos:
+            item = Item.objects.filter(itemNo = itemNo.itemNo)
+            i+=1
+            p.drawString(100, y, 'Item '+str(i) + " " + item[0].description + " Quantity: " + str(itemNo.qty))
+            y-=50
+        
+        p.drawString(100, y, 'Final Destination: ' + orders[0].clinicManager_location.clinicLocation)
         p.showPage()
         p.save()
 
@@ -293,8 +313,10 @@ class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, Vie
                 weight += int(obj['quantity']) * obj['weight']
 
 
+        user = Users.objects.filter(username = username)
         now = datetime.datetime.now()
-        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority, datetime = now, username = username)
+        print(user[0].clinic)
+        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight,clinicManager_location =  user[0].clinic, priority = priority, datetime = now, username = username)
         order.save();
 
         return self.render_json_response(
@@ -374,10 +396,11 @@ class Submit(views.CsrfExemptMixin, View):
                     user[0].lastname = form.cleaned_data['lastname']
                     user[0].username = form.cleaned_data['username']
                     user[0].password = form.cleaned_data['password']
-                    clinicLocation = form.cleaned_data['password']
-
+                    clinicLocation = form.cleaned_data['clinicLocation']
                     if clinicLocation and user[0].role == 'CM':
-                        user[0].clinicLocation = clinicLocation
+                        print("hiiiiii" + clinicLocation)
+                        clinic = ClinicLocation.objects.filter(clinicLocation = clinicLocation)
+                        user[0].clinic = clinic[0]
                     user[0].save()
                     print("New Username")
                     return HttpResponseRedirect('/login/')
@@ -429,10 +452,10 @@ def cmorders(request):
     objects = StoredValues.objects.all()
         
     clinic = ""
-    orders = Order.create(0, None)
+    orders = Order.create(0, None, None)
     for obj in objects:
         user = Users.objects.filter(username = obj.username)
-        orders = Order.objects.filter(username = obj.username)
+        orders = Order.objects.filter(username = obj.username, orderStatus = 'DIS')
 
     context = {
         'Orders': orders,
@@ -450,6 +473,49 @@ class DeliveredOrder(views.CsrfExemptMixin, View):
             print(order.orderStatus)
             order.orderStatus = 'DEL'
             order.save()
-            print(order.orderStatus)
+        
 
         return HttpResponse('')
+
+class Dispatch(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        deliveryNo = request.body
+        delivery = Delivery.objects.filter(deliveryNo=int(deliveryNo))
+        orderAsocdelivery = Order_Asoc_Delivery.objects.filter(deliveryNo=int(deliveryNo))
+        for order in orderAsocdelivery:
+            selectedorders = Order.objects.filter(orderNo=int(order.orderNo))
+            for selectedorder in selectedorders:
+                selectedorder.orderStatus = 'DIS'
+                selectedorder.save()
+                print(selectedorder.orderStatus)
+        delivery.delete()
+
+        return HttpResponse('')
+
+class CSV(views.CsrfExemptMixin, View):
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="db/itinerary.csv"'
+        writer = csv.writer(response)
+
+        delivery_num = request.META['QUERY_STRING']
+
+        obj = Order_Asoc_Delivery.objects.filter(deliveryNo = int(delivery_num))
+
+        location = []
+
+        for i in obj:
+            location.append(Order.objects.filter(orderNo=i.orderNo)[0].clinicManager_location.clinicID)
+
+        answer = travellingSalesmanAlgorithm(location)
+        
+
+        for i in answer:
+            temp = ClinicLocation.objects.filter(clinicID = i)[0]
+            clinic_loc = temp.clinicLocation
+            lat = temp.latitude
+            lon = temp.longitude
+            alt = temp.altitude
+            writer.writerow([clinic_loc, lat, lon, alt])
+
+        return response

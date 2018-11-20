@@ -119,8 +119,8 @@ class Order(models.Model):
     deliveryNo = models.ForeignKey(Delivery, on_delete=models.SET_NULL, blank = True, null = True)
 
     @classmethod
-    def create(cls, orderNo, datetime, noOfItems = 0, priority = L, orderStatus = 'QFP', weight = 0, username = 'Shiven'):
-        order = cls(orderNo = orderNo, noOfItems = noOfItems, priority = priority, orderStatus = orderStatus, weight = weight, datetime = datetime, username = username);
+    def create(cls, orderNo, datetime,clinicManager_location, noOfItems = 0, priority = L, orderStatus = 'QFP', weight = 0, username = 'Shiven'):
+        order = cls(orderNo = orderNo, noOfItems = noOfItems, clinicManager_location = clinicManager_location,priority = priority, orderStatus = orderStatus, weight = weight, datetime = datetime, username = username);
         return order
 
     def __str__(self):
@@ -151,4 +151,9 @@ class StoredValues(models.Model):
     latestOrderNo = models.IntegerField()
     latestDeliveryNo = models.IntegerField()
     username =  models.CharField(max_length=200,blank = True, null = True)
+
+    @classmethod
+    def create(cls):
+        asoc = cls();
+        return asoc
 

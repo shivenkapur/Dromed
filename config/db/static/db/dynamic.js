@@ -2,7 +2,7 @@
 var dict = {};
 var dict2 = {};
 dictButtons = {};
-
+totalweight = 0
 function myFunction(clicked_id, desc, weight, image) {
 
   if(!(clicked_id in dict)){
@@ -100,6 +100,11 @@ function qtychange(clicked_id, type, callType = 0)
         $('#qty' + clicked_id).val(++dict[clicked_id])
     else if(type == "minus" && dict[clicked_id] - 1 > 0)
         $('#qty' + clicked_id).val(--dict[clicked_id])
+
+    totalweight += dict[clicked_id]*dict2[clicked_id]
+
+    $('#totalweight').html('TOTAL WEIGHT: '+totalweight+' KGS');
+    console.log(totalweight)
 
 }
 

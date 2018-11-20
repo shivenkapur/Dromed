@@ -3,7 +3,27 @@
 {% block content %}
 {% load static %}
     <!--First Row - New and Dequeed tabs--> 
-    
+    <div class="row">
+
+
+      <!--Empty div for allignment purposes--> 
+      <div class="col-md-4 col-sm-4 col-xs-4"></div>
+
+
+      <div class="col-md-4 col-sm-4 col-xs-4">
+
+        <ul class="nav nav-pills">
+
+          <li class="active bg-primary"><a href="/" color = "white">NEW</a></li>
+          <li><a href="/">DEQUEUED</a></li>
+
+        </ul>
+
+      </div>
+
+       <!--Empty div for allignment purposes--> 
+      <div class="col-md-4 col-sm-4 col-xs-4"></div>
+    </div>
 
 
 
@@ -105,7 +125,7 @@
 
         dict[clicked_id] = 1;
         htmltext =
-        '<div class = "text-center"><button class = "btn btn-secondary" onclick = sendData('+clicked_id+') style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD CSV</strong></button></div>';
+        '<div class = "text-center"><a href = "/dispatcher/csv/?'+clicked_id+'"><button class = "btn btn-secondary" onclick = sendData('+clicked_id+') style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD CSV</strong></button></div>';
 
         $('#append').html(htmltext);
     }
