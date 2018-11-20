@@ -5,6 +5,7 @@ from django.db import models
 
 
 class ClinicLocation(models.Model):
+    clinicID = models.IntegerField()
     clinicLocation = models.CharField(max_length=200)
     latitude = models.FloatField() 
     longitude = models.FloatField() 
@@ -17,6 +18,11 @@ class ClinicLocation(models.Model):
     clinicManager_location1 = models.ForeignKey(ClinicLocation, null = True, blank = True, on_delete=models.SET_NULL)
     distance = models.FloatField()
 """
+
+class Clinic_Asoc_Clinic(models.Model):
+    clinicID1 = models.IntegerField()
+    clinicID2 = models.IntegerField()
+    distance = models.FloatField()
 
 class Users(models.Model):
     firstname = models.CharField(max_length=200, null = True, blank = True)
@@ -109,11 +115,12 @@ class Order(models.Model):
     orderType = models.CharField(max_length=200, choices = TYPE_SET, default = 'N')
 
     clinicManager_location = models.ForeignKey(ClinicLocation, null = True, blank = True, on_delete=models.SET_NULL)
+    username = models.CharField(max_length=200, blank = True, null = True, default = 'Shiven')
     deliveryNo = models.ForeignKey(Delivery, on_delete=models.SET_NULL, blank = True, null = True)
 
     @classmethod
-    def create(cls, orderNo, datetime, noOfItems = 0, priority = L, orderStatus = 'QFP', weight = 0):
-        order = cls(orderNo = orderNo, noOfItems = noOfItems, priority = priority, orderStatus = orderStatus, weight = weight, datetime = datetime);
+    def create(cls, orderNo, datetime, noOfItems = 0, priority = L, orderStatus = 'QFP', weight = 0, username = 'Shiven'):
+        order = cls(orderNo = orderNo, noOfItems = noOfItems, priority = priority, orderStatus = orderStatus, weight = weight, datetime = datetime, username = username);
         return order
 
     def __str__(self):
@@ -143,4 +150,5 @@ class StoredValues(models.Model):
 
     latestOrderNo = models.IntegerField()
     latestDeliveryNo = models.IntegerField()
+    username =  models.CharField(max_length=200,blank = True, null = True)
 

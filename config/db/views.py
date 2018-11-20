@@ -34,10 +34,11 @@ def item_view(request):
 
 def new_WP(request):
     context_object_name = 'Order'
-    objects = Order.objects.all()
 
+    order = Order.objects.filter().order_by('priority', ['High','Medium','Low'])
+    print(order)
     context = {
-        'Order': objects,
+        'Order': order,
     }
     return render(request, 'db/newWP.html', context)
 
@@ -65,9 +66,9 @@ def new_D(request):
     context_object_name = 'Delivery'
     objects = Delivery.objects.all()
 
-    orders = Order.objects.all()
+    orders = Order.objects.filter(orderStatus = 'QFD')
     
-    
+    print(orders)
 
 
     #create delivery and assign stuff
@@ -266,8 +267,10 @@ class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, Vie
     def post(self, request, *args, **kwargs):
         
         orderNo = 0
+        username = ""
         for value in StoredValues.objects.all():
             orderNo = value.latestOrderNo
+            username = value.username
             value.latestOrderNo +=1
             value.save()
 
@@ -291,7 +294,7 @@ class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, Vie
 
 
         now = datetime.datetime.now()
-        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority, datetime = now)
+        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority, datetime = now, username = username)
         order.save();
 
         return self.render_json_response(
@@ -340,6 +343,12 @@ class CompleteOrder(views.CsrfExemptMixin, View):
 
 #Login
 def reg(request):
+    context_object_name = 'Users'
+    objects = Item.objects.all()
+
+    context = {
+        'Items': objects,
+    }
     return render(request, 'db/signup.html')
 
 
@@ -365,6 +374,10 @@ class Submit(views.CsrfExemptMixin, View):
                     user[0].lastname = form.cleaned_data['lastname']
                     user[0].username = form.cleaned_data['username']
                     user[0].password = form.cleaned_data['password']
+                    clinicLocation = form.cleaned_data['password']
+
+                    if clinicLocation and user[0].role == 'CM':
+                        user[0].clinicLocation = clinicLocation
                     user[0].save()
                     print("New Username")
                     return HttpResponseRedirect('/login/')
@@ -388,13 +401,15 @@ def login(request):
     
 
     if request.method == 'POST':
-        
-
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(username,password)
         if user:
             if user.role=='CM':
+                objects = StoredValues.objects.all()
+                for obj in objects:
+                    obj.username = str(username)
+                    obj.save()
                 return HttpResponseRedirect('/order/')
             elif user.role=='WP':
                 return HttpResponseRedirect('/newWP/')
@@ -405,4 +420,36 @@ def login(request):
         else:
             messages.error(request, 'Error wrong username/password')
 
+
     return render(request, 'db/login.html')
+
+def cmorders(request):
+    context_object_name = 'Orders'
+
+    objects = StoredValues.objects.all()
+        
+    clinic = ""
+    orders = Order.create(0, None)
+    for obj in objects:
+        user = Users.objects.filter(username = obj.username)
+        orders = Order.objects.filter(username = obj.username)
+
+    context = {
+        'Orders': orders,
+    }
+    print(orders)
+    return render(request, 'db/cmorders.html', context)
+
+class DeliveredOrder(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        orderNo = request.body
+        print(orderNo)
+        
+        orders = Order.objects.filter(orderNo=int(orderNo))
+        for order in orders:
+            print(order.orderStatus)
+            order.orderStatus = 'DEL'
+            order.save()
+            print(order.orderStatus)
+
+        return HttpResponse('')
