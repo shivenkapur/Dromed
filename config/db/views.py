@@ -1,4 +1,5 @@
 
+from django.core.mail import send_mail
 import datetime
 from django.shortcuts import render
 from db.models import Item, Order, Item_Asoc_Order, Users, Delivery, Order_Asoc_Delivery, StoredValues, Clinic_Asoc_Clinic
@@ -18,6 +19,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.models import User
 # Create your views here.
 from django.core.mail import send_mail
+from random import randint
 import csv
 
 
@@ -127,15 +129,6 @@ def new_D(request):
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dispatcher.html', context)
 
-
-
-
-
-
-
-
-
-
 def travellingSalesmanAlgorithm(clinicLocations):
     clinicAsoc = dict()
     clinics = ClinicLocation.objects.all();
@@ -189,9 +182,6 @@ def remove(n, frontier):
 
 
 #PDF
-
-
-
 class PDF(views.CsrfExemptMixin, View):
     def get(self, request, *args, **kwargs):
 
@@ -232,51 +222,6 @@ class PDF(views.CsrfExemptMixin, View):
         response['Content-Disposition'] = 'attachment'
         print(response)
         return response
-
-
-    require_json = True
-    def post(self, request, *args, **kwargs):
-
-        orderNo = 0
-        for value in StoredValues.objects.all():
-            orderNo = value.latestOrderNo
-            value.latestOrderNo +=1
-            value.save()
-
-        quantity = 0
-        weight = 0
-        objects = json.loads(request.body)
-        print(objects)
-        items = Item.objects.all();
-
-        i = 0
-        priority = ''
-        for obj in objects:
-            if i == 0:
-                priority = obj['priority']
-                i+=1
-            else:
-                item_asoc_order = Item_Asoc_Order.create(itemNo= int(obj['itemNo']), orderNo = orderNo, qty = obj['quantity'])
-                item_asoc_order.save();
-                quantity += int(obj['quantity'])
-                weight += int(obj['quantity']) * obj['weight']
-
-
-        now = datetime.datetime.now()
-        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority, datetime = now)
-        order.save();
-
-        return self.render_json_response(
-            {"message": "Your contact has been sent!"})
-
-
-
-
-
-
-
-
-
 
 
 #Orders and WP
@@ -348,20 +293,6 @@ class CompleteOrder(views.CsrfExemptMixin, View):
             order.save()
             print(order.orderStatus)
         return HttpResponse('')
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #Login
 def reg(request):
@@ -372,10 +303,6 @@ def reg(request):
         'Items': objects,
     }
     return render(request, 'db/signup.html')
-
-
-
-
 
 class Submit(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
@@ -413,38 +340,76 @@ class Submit(views.CsrfExemptMixin, View):
 
 
 def authenticate(username, password):
-    users = Users.objects.all();
+    users = Users.objects.all()
     for user in users:
         if(username == user.username and password == user.password):
             return user
 
     return False
 
+def check_user(username):
+    users = Users.objects.all()
+    for user in users:
+        if username == user.username:
+            return user
+
+    return False
+
+def get_random(x):
+    startRandom = 10**(x-1)
+    endRandom = (10**x)-1
+    return randint(startRandom, endRandom)
+
 def login(request):
     
-
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(username,password)
-        if user:
-            if user.role=='CM':
-                objects = StoredValues.objects.all()
-                for obj in objects:
-                    obj.username = str(username)
-                    obj.save()
-                return HttpResponseRedirect('/order/')
-            elif user.role=='WP':
-                return HttpResponseRedirect('/newWP/')
+        if password == '':
+            ans = check_user(username)
+            if ans:
+                token = hex(get_random(32)).split('x')[-1]
+                ans.token = token
+                ans.save()
+                send_mail('Forgot Password', 'http://127.0.0.1:8000/forgot/?'+str(token), '', [ans.emailID], fail_silently=False)
             else:
-                return HttpResponseRedirect('/dispatcher/')
-    
-
+                messages.error(request, 'Error wrong username/password')
         else:
-            messages.error(request, 'Error wrong username/password')
-
+            user = authenticate(username,password)
+            if user:
+                if user.role=='CM':
+                    objects = StoredValues.objects.all()
+                    for obj in objects:
+                        obj.username = str(username)
+                        obj.save()
+                    return HttpResponseRedirect('/order/')
+                elif user.role=='WP':
+                    return HttpResponseRedirect('/newWP/')
+                else:
+                    return HttpResponseRedirect('/dispatcher/')
+            else:
+                messages.error(request, 'Error wrong username/password')
 
     return render(request, 'db/login.html')
+
+def forgot(request):
+    
+    context = {
+       'Token': request.META['QUERY_STRING'],
+    }
+    return render(request, 'db/forgot_password.html', context)
+
+def new_password(request):
+    
+    if request.method == 'POST':
+        NewPassword = request.POST.get('new_password')
+        users = Users.objects.filter(token = request.META['QUERY_STRING'])
+        for user in users:
+            print(user.firstname)
+            user.password = NewPassword
+            user.save()
+        
+    return HttpResponse('<h3>Successfully Updated Password! Close this window please</h3>')
 
 def cmorders(request):
     context_object_name = 'Orders'

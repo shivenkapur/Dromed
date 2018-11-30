@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import re_path, path
 from . import views
 
 
@@ -18,5 +18,6 @@ urlpatterns = [
     path('cmorders/', views.cmorders, name = 'cmorders'),
     path('cmorders/change/', views.DeliveredOrder.as_view(), name = 'cmorders'),
     path('dispatcher/csv/', views.CSV.as_view(), name = 'csv-creation'),
-
+    re_path('^forgot/?', views.forgot, name = 'forgot-password'),
+    re_path('^new-password/?', views.new_password, name = 'new-password-setting')
 ]
