@@ -98,7 +98,7 @@
                 </div>
 
                 <div class = "col-md-2 col-sm-2 col-xs-2 pt-3 text-center" >
-                  <button class = "btn btn-secondary" style = "border:0;font-size: 15px;padding:10px;" onclick="myFunction(this.id,'{{order.orderStatus}}','{{order.priority}}','{{order.clinicManager_location.clinicLocation}}')" id = "{{order.orderNo}}"><strong>SELECT</strong></button>
+                  <button class = "btn btn-secondary" style = "border:0;font-size: 15px;padding:10px;" onclick="myFunction(this.id,'{{order.orderStatus}}','{{order.priority}}','{{order.clinicManager_location.clinicLocation}}','{{order.username}}')" id = "{{order.orderNo}}"><strong>SELECT</strong></button>
                 </div>
               
             </div>
@@ -121,7 +121,7 @@
   </div>
     <script type="text/javascript">
     var dict = {};
-    function myFunction(clicked_id, status, priority, clinicLocation) {     
+    function myFunction(clicked_id, status, priority, clinicLocation, username) {     
         
         for (var key in dict) {
             dict[key] = 0;
@@ -136,7 +136,7 @@
         '<div style = "padding: 20px 0 5px 0;font-size: 15px;"><strong> ORDER STATUS</strong></div>'+
         '<div style = "padding: 15px 0px 5px 10px;">'+status+'</div>'+
         '<div style = "padding: 20px 0 5px 0;font-size: 15px;"><strong> CLINIC MANAGER</strong></div>'+
-        '<div style = "padding: 15px 0px 5px 10px;"></div>'+
+        '<div style = "padding: 15px 0px 5px 10px;">'+username+'</div>'+
         '<div style = "padding: 20px 0 5px 0;font-size: 15px;"><strong> DELIVERING TO</strong></div>'+
         '<div style = "padding: 15px 0px 5px 10px;">'+clinicLocation+'</div>'+
         '<div class = "text-center"><a href = "/warehouse/pdf/?'+clicked_id+'"><button class = "btn btn-secondary" style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD PDF</strong></button></a></div>';

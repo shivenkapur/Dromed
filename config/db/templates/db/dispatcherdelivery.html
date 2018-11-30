@@ -37,7 +37,7 @@
 
           <text class = "ml-4 mb-2">MY DELIVERIES</text>
           <hr>
-          {% for order in Order%}
+          {% for delivery in Delivery%}
           <div class = "row justify-content-md-center mb-1" id = 'Order{{order.orderNo}}'>
 
             <div class="col-md-12 col-sm-12 col-xs-12">
@@ -45,7 +45,7 @@
               <div class="row justify-content-md-center mb-1 ml-1">
                 
                 <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
-                  <strong>ORDER NUMBER {{order.orderNo}}</strong>
+                  <strong>DELIVERY NUMBER {{delivery.deliveryNo}}</strong>
                 </div>
                 
                 <div class = "col-md-3 col-sm-3 col-xs-3">
@@ -56,7 +56,7 @@
                 </div>
                 
                 <div class="col-md-2 col-sm-2 col-xs-2 pl-5 ml-4 text-center">
-                <button type = "button" class = "btn btn-default btn-danger btn-circle crossorder" style = "background-color:#A02104;" id = '{{order.orderNo}}' onclick="dequeue(this.id)">
+                <button type = "button" class = "btn btn-default btn-danger btn-circle crossorder" style = "background-color:#A02104;" id = '{{delivery.deliveryNo}}' onclick="dequeue(this.id)">
                   X  
                 </button>
                 </div>
@@ -85,7 +85,7 @@
             <div class="row justify-content-md-center mb-2 pt-1 ml-1">
                 
                 <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
-                  {{order.weight}}KGS
+                  {{delivery.weight}}KGS
                 </div>
                 
                 <div class = "col-md-3 col-sm-3 col-xs-3">
@@ -97,7 +97,7 @@
                 </div>
 
                 <div class = "col-md-2 col-sm-2 col-xs-2 pt-3 text-center" >
-                  <button class = "btn btn-secondary" style = "border:0;font-size: 15px;padding:10px;" onclick="myFunction(this.id)" id = "{{order.orderNo}}"><strong>SELECT</strong></button>
+                  <button class = "btn btn-secondary" style = "border:0;font-size: 15px;padding:10px;" onclick="myFunction(this.id)" id = "{{delivery.deliveryNo}}"><strong>SELECT</strong></button>
                 </div>
               
             </div>
@@ -109,34 +109,27 @@
     </div>
 
     <div class="col-md-3 col-sm-3 col-xs-3 orderdetails" id = "orderdetails">
-      <div style = "padding-top: 20px;font-size: 20px;">ORDERS ADDED</div>
+      <div style = "padding-top: 20px;font-size: 20px;">ORDER DETAILS</div>
       <hr>
       <div id= "append"  style = "padding: 5px 10px 5px 10px;margin-bottom: 20px;"></div>
       
     </div>
   </div>
+
     <script type="text/javascript">
     var dict = {};
-    first = 0;
-    function myFunction(clicked_id, status, priority, clinicLocation) {     
 
-
-        htmltext =
-        '<div class = "ml-3"> ORDER NUMBER : '+ clicked_id +' ADDED to DELIVERY</div><br>';
+    function myFunction(clicked_id) {     
         
-        if(first == 0)
-        {
-          first = 1
-          htmltext += '<div class = "text-center" id = "makeorderbutton"><button class = "btn btn-secondary" onclick = sendData('+clicked_id+') style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>MAKE ORDER</strong></button></div>'
-          $('#append').append(htmltext);
-        }  
-        else if(dict[clicked_id] != 1)
-          $(htmltext).insertBefore('#makeorderbutton');
+        for (var key in dict) {
+            dict[key] = 0;
+        }
 
         dict[clicked_id] = 1;
+        htmltext =
+        '<div class = "text-center"><a href = "/dispatcher/csv/?'+clicked_id+'"><button class = "btn btn-secondary" onclick = sendData('+clicked_id+') style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD CSV</strong></button></div>';
 
-
-        
+        $('#append').html(htmltext);
     }
 
     function dequeue(clicked_id)
@@ -145,7 +138,7 @@
         $('#append').html(' ');
       $('#Order'+clicked_id).remove();
 
-      url = "change/";
+      url = "dispatcherdelivery/change/";
 
       data = String(clicked_id)
 
@@ -163,20 +156,11 @@
     function sendData(clicked_id)
     {
       
-      url = "makeorder/";
-      data = [];
-      i = 0;
-      for (var key in dict) {
-        if(dict[key] != 0)
-        {
-            data[i] = {};
-            data[i]['orderNo'] = key;
-            i++;
-        }
-    }
-      var json = JSON.stringify(data);
-      console.log(json)
-      $.post(url, json)
+      url = "warehouse/pdf/";
+
+      data = String(clicked_id)
+
+      $.post(url, data)
       .done(function() {
           
       })
@@ -189,4 +173,3 @@
 
   </script>
 {% endblock content %}
-

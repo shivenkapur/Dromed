@@ -65,64 +65,13 @@ def dequeue_WP(request):
 
 def new_D(request):
     context_object_name = 'Delivery'
-    objects = Delivery.objects.all()
+    objects = Order.objects.all()
 
-    orders = Order.objects.filter(orderStatus = 'QFD')
-    
-    print(orders)
-
-
-    #create delivery and assign stuff
-    deliveryNo = 0
-
-    storedValueobj = None
-    for value in StoredValues.objects.all():
-        deliveryNo = value.latestDeliveryNo
-        storedValueobj = value
-
-
-    weight = 1.2 #Shipping cotainer weighs 1.2kgs
-    noOfOrders = 0
-    delivery = Delivery.create(-1, 0, None, 0)
-    i = 0
-    while i < len(orders):
-
-        if orders[i].assigned == False:
-            if  weight + orders[i].weight < 25.0:
-
-                weight += orders[i].weight
-                noOfOrders+=1
-                orders[i].assigned = True
-                orderAsocdelivery = Order_Asoc_Delivery.create(orderNo = orders[i].orderNo, deliveryNo = deliveryNo)
-                orderAsocdelivery.save()
-            else:
-
-                now = datetime.datetime.now()
-                delivery = Delivery.create(deliveryNo, weight, now, noOfOrders)
-                delivery.save()
-
-                delivery = Delivery.create(-1, 0, None, 0)
-                deliveryNo+=1
-                weight = 1.2
-                noOfOrders = 0
-                i-=1
-            orders[i].save()
-        i+=1
-        #change this to make it work
-
-    if(noOfOrders != 0):
-        now = datetime.datetime.now()
-        delivery = Delivery.create(deliveryNo, weight, now, noOfOrders)
-        delivery.save()
-        deliveryNo+=1
-    storedValueobj.latestDeliveryNo = deliveryNo
-    storedValueobj.save()
-
-
+    objects = Order.objects.filter(orderStatus = 'QFD')
 
     #travellingSalesmanAlgorithm([1,4,6,7])
     context = {
-        'Delivery': objects,
+        'Order': objects,
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dispatcher.html', context)
@@ -151,25 +100,33 @@ def travellingSalesmanAlgorithm(clinicLocations):
 
     frontier = []
     hospitalID = 8 
-    print(clinicAsoc)
+    checker = set()
     for clinicLocation in clinicLocations:
-        frontier.append((clinicAsoc[(8, clinicLocation)] , clinicLocation))
-    
+        if clinicLocation not in checker:
+            checker.add(clinicLocation)
+            frontier.append((clinicAsoc[(8, clinicLocation)] , clinicLocation))
+    print("hiii")
+    print(frontier)
 
     n = 0
 
-    checker = set()
+    
     length = len(clinicLocations)
     answer = []
+    unique = set()
     while n<length:
+        print("hiiii")
+        print(frontier)
         node = remove(min(frontier, key = lambda x: x[0]), frontier)
-        print(answer)
+        unique.add(node)
         answer.append(node[1])
-        checker.add(node[1])
         frontier = []
+        checker = set()
         for clinicLocation in clinicLocations:
             if clinicLocation not in checker:
-                frontier.append((clinicAsoc[(node[1], clinicLocation)] , clinicLocation))
+                checker.add(clinicLocation)
+                if node[1] != clinicLocation:
+                    frontier.append((clinicAsoc[(node[1], clinicLocation)] , clinicLocation))
         n+=1
     
 
@@ -285,7 +242,6 @@ class PDF(views.CsrfExemptMixin, View):
 class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
     require_json = True
     def post(self, request, *args, **kwargs):
-        
         orderNo = 0
         username = ""
         for value in StoredValues.objects.all():
@@ -349,12 +305,6 @@ class CompleteOrder(views.CsrfExemptMixin, View):
             print(order.orderStatus)
         return HttpResponse('')
         
-
-
-
-
-
-
 
 
 
@@ -455,7 +405,7 @@ def cmorders(request):
     orders = Order.create(0, None, None)
     for obj in objects:
         user = Users.objects.filter(username = obj.username)
-        orders = Order.objects.filter(username = obj.username, orderStatus = 'DIS')
+        orders = Order.objects.filter(username = obj.username).exclude(orderStatus = 'DEL')
 
     context = {
         'Orders': orders,
@@ -470,9 +420,23 @@ class DeliveredOrder(views.CsrfExemptMixin, View):
         
         orders = Order.objects.filter(orderNo=int(orderNo))
         for order in orders:
-            print(order.orderStatus)
-            order.orderStatus = 'DEL'
-            order.save()
+            if(order.orderStatus == 'DIS'):
+                print(order.orderStatus)
+                order.orderStatus = 'DEL'
+                order.save()
+        
+
+        return HttpResponse('')
+class CancelOrder(views.CsrfExemptMixin, View):
+    def post(self, request, *args, **kwargs):
+        orderNo = request.body
+        print(orderNo)
+        
+        orders = Order.objects.filter(orderNo=int(orderNo))
+        for order in orders:
+            if(order.orderStatus == 'QFP'):
+                order.orderStatus = 'CAN'
+                order.save()
         
 
         return HttpResponse('')
@@ -504,8 +468,10 @@ class CSV(views.CsrfExemptMixin, View):
 
         location = []
 
+
         for i in obj:
-            location.append(Order.objects.filter(orderNo=i.orderNo)[0].clinicManager_location.clinicID)
+            if Order.objects.filter(orderNo=i.orderNo)[0].clinicManager_location.clinicID not in location:
+                location.append(Order.objects.filter(orderNo=i.orderNo)[0].clinicManager_location.clinicID)
 
         answer = travellingSalesmanAlgorithm(location)
         
@@ -519,3 +485,56 @@ class CSV(views.CsrfExemptMixin, View):
             writer.writerow([clinic_loc, lat, lon, alt])
 
         return response
+ 
+class Makeorder(views.CsrfExemptMixin, View):
+    
+    def post(self, request, *args, **kwargs):
+        orderNos = request.body
+
+        orders = json.loads(request.body)
+        print(orders)
+        
+
+        #create delivery and assign stuff
+        deliveryNo = 0
+
+        storedValueobj = None
+        for value in StoredValues.objects.all():
+            deliveryNo = value.latestDeliveryNo
+            storedValueobj = value
+            value.latestDeliveryNo+=1
+            value.save()
+
+
+        weight = 1.2 #Shipping cotainer weighs 1.2kgs
+        noOfOrders = 0
+        delivery = Delivery.create(deliveryNo, 0, None, 0)
+        
+        weight = 0
+        n = 0
+        for order in orders:
+            orderobj = Order.objects.filter(orderNo = int(order['orderNo']))
+            for o in orderobj:
+                n+=1
+                o.orderStatus = 'QFD2'
+                weight += o.weight
+                o.save()
+                orderasocdelivery = Order_Asoc_Delivery.create(o.orderNo, deliveryNo)
+                orderasocdelivery.save()
+        delivery.weight = weight
+        delivery.noOfOrders = n
+        delivery.save()
+        return HttpResponse('')
+
+def dispatcher_deliveries(request):
+
+    context_object_name = 'Delivery'
+    objects = Delivery.objects.all()
+
+    context = {
+        'Delivery': objects,
+    }
+
+    # Render the HTML template index.html with the data in the context variable
+    return render(request, 'db/dispatcherdelivery.html', context)
+

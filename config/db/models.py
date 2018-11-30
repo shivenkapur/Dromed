@@ -97,6 +97,7 @@ class Order(models.Model):
     ('QFP', 'Queued for Processing'),
     ('PBW', 'Processing by Warehouse'),
     ('QFD', 'Queued for Dispatch'),
+    ('QFD2', 'Queued for Dispatch2'),
     ('DIS', 'Dispatched'),
     ('DEL', 'Delivered'))
 

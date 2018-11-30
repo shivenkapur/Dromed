@@ -13,13 +13,13 @@
           <text class = "ml-4 mb-2">MY ORDERS</text>
           <hr>
           {% for order in Orders%}
-          <div class = "row justify-content-md-center mb-1" id = 'Order{{order.orderNo}}'>
+          <div class = "row justify-content-md-center mb-1 ml-3" id = 'Order{{order.orderNo}}'>
 
             <div class="col-md-12 col-sm-12 col-xs-12">
 
               <div class="row justify-content-md-center mb-1 ml-1">
                 
-                <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
+                <div class="col-md-3 col-sm-3 col-xs-3">
                   <strong>ORDER NUMBER {{order.orderNo}}</strong>
                 </div>
                 
@@ -28,17 +28,18 @@
                 </div> 
                 
                 <div class = "col-md-3 col-sm-3 col-xs-3">
+                  {{order.orderStatus}}
                 </div>
                 
-                <div class="col-md-2 col-sm-2 col-xs-2 pl-5 ml-4 text-center">
-                
+                <div class="col-md-3 col-sm-3 col-xs-3 text-center">
+                  <button type = "button" class = "btn btn-secondary" style = "border:0;font-size: 15px;" id = '{{order.orderNo}}' onclick="cancel(this.id)"><strong>CANCEL</strong></button>
                 </div>
 
               </div>
 
-            <div class="row justify-content-md-center pt-4 ml-1">
+            <div class="row justify-content-md-center pt-4 ml-1 mt-4">
                 
-                <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
+                <div class="col-md-3 col-sm-3 col-xs-3">
                   <strong>ORDER WEIGHT</strong>
                 </div>
                 
@@ -46,7 +47,7 @@
                   <strong>DELIVER BY</strong>
                 </div> 
                 
-                <div class="col-md-2 col-sm-2 col-xs-2 pl-3 ml-4">
+                <div class="col-md-3 col-sm-2 col-xs-2">
                   <strong>DELIVER FROM</strong>
                 </div>
 
@@ -57,7 +58,7 @@
 
             <div class="row justify-content-md-center mb-2 pt-1 ml-1">
                 
-                <div class="col-md-3 col-sm-3 col-xs-3 pl-1 ml-2">
+                <div class="col-md-3 col-sm-3 col-xs-3">
                   {{order.weight}}KGS
                 </div>
                 
@@ -65,12 +66,12 @@
                   16th August
                 </div> 
                 
-                <div class="col-md-3 col-sm-3 col-xs-3 pl-3 ml-4">
+                <div class="col-md-3 col-sm-3 col-xs-3">
                   QMH
                 </div>
 
-                <div class = "col-md-2 col-sm-2 col-xs-2 pt-3 text-center" >
-                  <button type = "button" class = "btn btn-secondary" style = "border:0;font-size: 15px;padding:10px;" id = '{{order.orderNo}}' onclick="complete(this.id)"><strong>COMPLETE</strong></button>
+                <div class = "col-md-3 col-sm-3 col-xs-2 pt-2 text-center" >
+                  <button type = "button" class = "btn btn-secondary" style = "border:0;font-size: 15px;" id = '{{order.orderNo}}' onclick="complete(this.id)"><strong>COMPLETE</strong></button>
                 </div>
               
             </div>
@@ -104,7 +105,23 @@
        });
 
     }
+    function cancel(clicked_id)
+    {
+      $('#Order'+clicked_id).remove();
 
+      url = "cancel/";
+
+      data = String(clicked_id)
+
+      $.post(url, data)
+      .done(function() {
+          
+      })
+      .fail(function() {
+      })
+      .always(function() {
+       });
+    }
     function sendData(clicked_id)
     {
         
