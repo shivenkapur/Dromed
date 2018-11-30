@@ -411,6 +411,26 @@ def new_password(request):
         
     return HttpResponse('<h3>Successfully Updated Password! Close this window please</h3>')
 
+def change_details(request):
+    context = {
+        'User': Users.objects.filter(username = StoredValues.objects.all()[0].username)
+    }
+
+    return render(request, 'db/change_details.html', context)
+
+def changed(request):
+    user_query = request.META['QUERY_STRING']
+    user = Users.objects.filter(username = user_query)
+    if request.method == 'POST':
+        for u in user:
+            u.firstname = request.POST.get('first_name')
+            u.lastname = request.POST.get('last_name')
+            u.emailID = request.POST.get('emailID')
+            u.password = request.POST.get('password')
+            u.save()
+    return HttpResponseRedirect('/order/')
+
+
 def cmorders(request):
     context_object_name = 'Orders'
 
