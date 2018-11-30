@@ -30,7 +30,7 @@ class Users(models.Model):
     username = models.CharField(max_length=200, null = True, blank = True)
     password = models.CharField(max_length=200, null = True, blank = True)
     role = models.CharField(max_length=200)
-    emailID = models.EmailField(primary_key = True)
+    emailID = models.EmailField(max_length=200, null = True, blank = True)
     token = models.CharField(max_length=200, null = True, blank = True)
     clinic = models.ForeignKey(ClinicLocation, on_delete=models.CASCADE, null = True, blank = True)
     

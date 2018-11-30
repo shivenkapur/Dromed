@@ -25,5 +25,4 @@ urlpatterns = [
     path('dispatcherdelivery/change/', views.Dispatch.as_view(), name = 'dispatch'),
     re_path('^forgot/?', views.forgot, name = 'forgot-password'),
     re_path('^new-password/?', views.new_password, name = 'new-password-setting')
-
 ]
