@@ -1,4 +1,5 @@
 
+from django.core.mail import send_mail
 import datetime
 from django.shortcuts import render
 from db.models import Item, Order, Item_Asoc_Order, Users, Delivery, Order_Asoc_Delivery, StoredValues, Clinic_Asoc_Clinic
@@ -18,6 +19,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.models import User
 # Create your views here.
 from django.core.mail import send_mail
+from random import randint
 import csv
 
 
@@ -75,15 +77,6 @@ def new_D(request):
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'db/dispatcher.html', context)
-
-
-
-
-
-
-
-
-
 
 def travellingSalesmanAlgorithm(clinicLocations):
     clinicAsoc = dict()
@@ -146,9 +139,6 @@ def remove(n, frontier):
 
 
 #PDF
-
-
-
 class PDF(views.CsrfExemptMixin, View):
     def get(self, request, *args, **kwargs):
 
@@ -304,6 +294,7 @@ class CompleteOrder(views.CsrfExemptMixin, View):
             order.save()
             print(order.orderStatus)
         return HttpResponse('')
+<<<<<<< HEAD
         
 
 
@@ -312,6 +303,8 @@ class CompleteOrder(views.CsrfExemptMixin, View):
 
 
 
+=======
+>>>>>>> 9361d8b33d6079b8748808b449061ca5a5dcb936
 
 #Login
 def reg(request):
@@ -322,10 +315,6 @@ def reg(request):
         'Items': objects,
     }
     return render(request, 'db/signup.html')
-
-
-
-
 
 class Submit(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
@@ -363,38 +352,96 @@ class Submit(views.CsrfExemptMixin, View):
 
 
 def authenticate(username, password):
-    users = Users.objects.all();
+    users = Users.objects.all()
     for user in users:
         if(username == user.username and password == user.password):
             return user
 
     return False
 
+def check_user(username):
+    users = Users.objects.all()
+    for user in users:
+        if username == user.username:
+            return user
+
+    return False
+
+def get_random(x):
+    startRandom = 10**(x-1)
+    endRandom = (10**x)-1
+    return randint(startRandom, endRandom)
+
 def login(request):
     
-
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(username,password)
-        if user:
-            if user.role=='CM':
-                objects = StoredValues.objects.all()
-                for obj in objects:
-                    obj.username = str(username)
-                    obj.save()
-                return HttpResponseRedirect('/order/')
-            elif user.role=='WP':
-                return HttpResponseRedirect('/newWP/')
+        if password == '':
+            ans = check_user(username)
+            if ans:
+                token = hex(get_random(32)).split('x')[-1]
+                ans.token = token
+                ans.save()
+                send_mail('Forgot Password', 'http://127.0.0.1:8000/forgot/?'+str(token), '', [ans.emailID], fail_silently=False)
             else:
-                return HttpResponseRedirect('/dispatcher/')
-    
-
+                messages.error(request, 'Error wrong username/password')
         else:
-            messages.error(request, 'Error wrong username/password')
-
+            user = authenticate(username,password)
+            if user:
+                if user.role=='CM':
+                    objects = StoredValues.objects.all()
+                    for obj in objects:
+                        obj.username = str(username)
+                        obj.save()
+                    return HttpResponseRedirect('/order/')
+                elif user.role=='WP':
+                    return HttpResponseRedirect('/newWP/')
+                else:
+                    return HttpResponseRedirect('/dispatcher/')
+            else:
+                messages.error(request, 'Error wrong username/password')
 
     return render(request, 'db/login.html')
+
+def forgot(request):
+    
+    context = {
+       'Token': request.META['QUERY_STRING'],
+    }
+    return render(request, 'db/forgot_password.html', context)
+
+def new_password(request):
+    
+    if request.method == 'POST':
+        NewPassword = request.POST.get('new_password')
+        users = Users.objects.filter(token = request.META['QUERY_STRING'])
+        for user in users:
+            print(user.firstname)
+            user.password = NewPassword
+            user.save()
+        
+    return HttpResponse('<h3>Successfully Updated Password! Close this window please</h3>')
+
+def change_details(request):
+    context = {
+        'User': Users.objects.filter(username = StoredValues.objects.all()[0].username)
+    }
+
+    return render(request, 'db/change_details.html', context)
+
+def changed(request):
+    user_query = request.META['QUERY_STRING']
+    user = Users.objects.filter(username = user_query)
+    if request.method == 'POST':
+        for u in user:
+            u.firstname = request.POST.get('first_name')
+            u.lastname = request.POST.get('last_name')
+            u.emailID = request.POST.get('emailID')
+            u.password = request.POST.get('password')
+            u.save()
+    return HttpResponseRedirect('/order/')
+
 
 def cmorders(request):
     context_object_name = 'Orders'
