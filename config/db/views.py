@@ -19,7 +19,9 @@ from django.contrib import auth, messages
 from django.contrib.auth.models import User
 # Create your views here.
 from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from random import randint
+import requests
 import csv
 
 

@@ -40,7 +40,6 @@ class Users(models.Model):
         user = cls(firstname = firstname, lastname = lastname, username = username, password = password, role = role);
         return user
     
-
     def _str_(self):
         return str(self.firstname)
 
