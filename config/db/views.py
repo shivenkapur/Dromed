@@ -1,5 +1,4 @@
 
-from django.core.mail import send_mail
 import datetime
 from django.shortcuts import render
 from db.models import Item, Order, Item_Asoc_Order, Users, Delivery, Order_Asoc_Delivery, StoredValues, Clinic_Asoc_Clinic
@@ -18,12 +17,10 @@ import json
 from django.contrib import auth, messages
 from django.contrib.auth.models import User
 # Create your views here.
-from django.core.mail import send_mail
 from django.core.mail import send_mail, EmailMessage
 from random import randint
 import requests
 import csv
-
 
 def item_view(request):
 
@@ -39,9 +36,11 @@ def item_view(request):
 
 def new_WP(request):
     context_object_name = 'Order'
-
-    order = Order.objects.filter().order_by('priority')
-    print(order)
+    
+    dict = {"High" : 3, "Medium" : 2, "Low" : 1, "" : 0}
+    
+    order = sorted(Order.objects.all(), key = lambda x: dict[x.priority], reverse = True)
+    
     context = {
         'Order': order,
     }
@@ -100,7 +99,6 @@ def travellingSalesmanAlgorithm(clinicLocations):
         if clinicLocation not in checker:
             checker.add(clinicLocation)
             frontier.append((clinicAsoc[(8, clinicLocation)] , clinicLocation))
-    print("hiii")
     print(frontier)
 
     n = 0
@@ -182,52 +180,6 @@ class PDF(views.CsrfExemptMixin, View):
         print(response)
         return response
 
-
-    require_json = True
-    def post(self, request, *args, **kwargs):
-
-        orderNo = 0
-        for value in StoredValues.objects.all():
-            orderNo = value.latestOrderNo
-            value.latestOrderNo +=1
-            value.save()
-
-        quantity = 0
-        weight = 0
-        objects = json.loads(request.body)
-        print(objects)
-        items = Item.objects.all();
-
-        i = 0
-        priority = ''
-        for obj in objects:
-            if i == 0:
-                priority = obj['priority']
-                i+=1
-            else:
-                item_asoc_order = Item_Asoc_Order.create(itemNo= int(obj['itemNo']), orderNo = orderNo, qty = obj['quantity'])
-                item_asoc_order.save();
-                quantity += int(obj['quantity'])
-                weight += int(obj['quantity']) * obj['weight']
-
-
-        now = datetime.datetime.now()
-        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority, datetime = now)
-        order.save();
-
-        return self.render_json_response(
-            {"message": "Your contact has been sent!"})
-
-
-
-
-
-
-
-
-
-
-
 #Orders and WP
 
 
@@ -296,17 +248,6 @@ class CompleteOrder(views.CsrfExemptMixin, View):
             order.save()
             print(order.orderStatus)
         return HttpResponse('')
-<<<<<<< HEAD
-        
-
-
-
-
-
-
-
-=======
->>>>>>> 9361d8b33d6079b8748808b449061ca5a5dcb936
 
 #Login
 def reg(request):
@@ -473,9 +414,9 @@ class DeliveredOrder(views.CsrfExemptMixin, View):
                 print(order.orderStatus)
                 order.orderStatus = 'DEL'
                 order.save()
-        
 
         return HttpResponse('')
+
 class CancelOrder(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
         orderNo = request.body
@@ -500,7 +441,10 @@ class Dispatch(views.CsrfExemptMixin, View):
             for selectedorder in selectedorders:
                 selectedorder.orderStatus = 'DIS'
                 selectedorder.save()
-                print(selectedorder.orderStatus)
+                msg = EmailMessage('Order Dispatched', 'Your order '+ str(selectedorder.orderNo) +' has been dispatched' ,'',[i.emailID for i in Users.objects.filter(username = selectedorder.username)])
+                requests.get('http://127.0.0.1:8000/warehouse/pdf/?'+str(selectedorder.orderNo))
+                msg.attach_file('db/shipping_label.pdf')
+                msg.send()
         delivery.delete()
 
         return HttpResponse('')
