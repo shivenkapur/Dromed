@@ -57,7 +57,7 @@ function myFunction(clicked_id, desc, weight, image) {
                         '<button type = "button" onclick = qtychange('+clicked_id+',"minus",this.id) id = "minus" style = "padding:0;height:30px;width:30px;" class = "btn btn-sm btn-default btn-secondary btn-circle">'+
                             '-'+
                         '</button>'+
-                            '<input type="text" value = "1" id = "qty'+clicked_id+'" name="usrname" class = "text-center ml-2 mr-2" style = "width:50px;">'
+                            '<input type="text" value = "1" id = "qty'+clicked_id+'" name="usrname" class = "text-center ml-2 mr-2" style = "width:50px;" readonly>'
                         +
                         '<button type = "button" onclick = qtychange('+clicked_id+',"plus",this.id) id = "plus" style = "padding:0;height:30px;width:30px;" class = "btn btn-sm btn-default btn-secondary btn-circle">'+
                             '+'+

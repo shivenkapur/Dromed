@@ -360,6 +360,7 @@ def login(request):
                 ans.token = token
                 ans.save()
                 send_mail('Forgot Password', 'http://127.0.0.1:8000/forgot/?'+str(token), '', [ans.emailID], fail_silently=False)
+                return HttpResponse("Please check your email ID for the link we recently sent to reset your password")
             else:
                 messages.error(request, 'Error wrong username/password')
         else:
