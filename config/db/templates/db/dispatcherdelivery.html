@@ -14,8 +14,8 @@
 
         <ul class="nav nav-pills">
 
-          <li class="active bg-primary"><a href="/" color = "white">NEW</a></li>
-          <li><a href="/">DEQUEUED</a></li>
+          <li><a href="/dispatcher" color = "white">ORDERS</a></li>
+          <li class="active bg-primary"><a href="/">DELIVERY</a></li>
 
         </ul>
 
@@ -38,7 +38,7 @@
           <text class = "ml-4 mb-2">MY DELIVERIES</text>
           <hr>
           {% for delivery in Delivery%}
-          <div class = "row justify-content-md-center mb-1" id = 'Order{{order.orderNo}}'>
+          <div class = "row justify-content-md-center mb-1" id = 'Delivery{{delivery.deliveryNo}}'>
 
             <div class="col-md-12 col-sm-12 col-xs-12">
 
@@ -124,7 +124,6 @@
         for (var key in dict) {
             dict[key] = 0;
         }
-
         dict[clicked_id] = 1;
         htmltext =
         '<div class = "text-center"><a href = "/dispatcher/csv/?'+clicked_id+'"><button class = "btn btn-secondary" onclick = sendData('+clicked_id+') style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>DOWNLOAD CSV</strong></button></div>';
@@ -136,7 +135,7 @@
     {
       if(dict[clicked_id] == 1)
         $('#append').html(' ');
-      $('#Order'+clicked_id).remove();
+      $('#Delivery'+clicked_id).remove();
 
       url = "dispatcherdelivery/change/";
 
@@ -155,7 +154,8 @@
 
     function sendData(clicked_id)
     {
-      
+
+      $('#append').html('');
       url = "warehouse/pdf/";
 
       data = String(clicked_id)

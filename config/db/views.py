@@ -23,60 +23,92 @@ from random import randint
 import csv
 
 
+def check(role):
+    username = ""
+    for value in StoredValues.objects.all():
+        username = value.username
+    users = Users.objects.filter(username = username)
+
+    flag = False
+    for user in users:
+        if(user.role == role):
+            flag = True
+    return flag
+
 def item_view(request):
+    if(check('CM')):
+        context_object_name = 'Items'
+        objects = Item.objects.all()
 
-    context_object_name = 'Items'
-    objects = Item.objects.all()
+        context = {
+            'Items': objects,
+        }
 
-    context = {
-        'Items': objects,
-    }
-
-    # Render the HTML template index.html with the data in the context variable
-    return render(request, 'db/order.html', context)
+        # Render the HTML template index.html with the data in the context variable
+        return render(request, 'db/order.html', context)
+    else:
+        return HttpResponseRedirect('/login/')
 
 def new_WP(request):
-    context_object_name = 'Order'
 
-    order = Order.objects.filter().order_by('priority')
-    print(order)
-    context = {
-        'Order': order,
-    }
-    return render(request, 'db/newWP.html', context)
+    if(check('WP')):
+        context_object_name = 'Items'
+        objects = Item.objects.all()
 
-def dispatcher(request):
-    context_object_name = 'Delivery'
-    objects = Delivery.objects.all()
+        context = {
+            'Items': objects,
+        }
 
-    context = {
-        'Delivery': objects,
-    }
-    return render(request, 'db/dispatcher.html', context)
-
+        order = Order.objects.filter().order_by('priority')
+        print(order)
+        context = {
+            'Order': order,
+        }
+        return render(request, 'db/newWP.html', context)
+    else:
+        return HttpResponseRedirect('/login/')
 
 def dequeue_WP(request):
-    context_object_name = 'Order'
-    objects = Order.objects.all()
+    if(check('WP')):
+        context_object_name = 'Items'
+        objects = Item.objects.all()
 
-    context = {
-        'Order': objects,
-    }
-    # Render the HTML template index.html with the data in the context variable
-    return render(request, 'db/dequeuedWP.html', context)
+        context = {
+            'Items': objects,
+        }
+        context_object_name = 'Order'
+        objects = Order.objects.all()
+
+        context = {
+            'Order': objects,
+        }
+        # Render the HTML template index.html with the data in the context variable
+        return render(request, 'db/dequeuedWP.html', context)
+    else:
+        return HttpResponseRedirect('/login/');
+
 
 def new_D(request):
-    context_object_name = 'Delivery'
-    objects = Order.objects.all()
+    if(check('DP')):
+        context_object_name = 'Items'
+        objects = Item.objects.all()
 
-    objects = Order.objects.filter(orderStatus = 'QFD')
+        context = {
+            'Items': objects,
+        }
+        context_object_name = 'Delivery'
+        objects = Order.objects.all()
 
-    #travellingSalesmanAlgorithm([1,4,6,7])
-    context = {
-        'Order': objects,
-    }
-    # Render the HTML template index.html with the data in the context variable
-    return render(request, 'db/dispatcher.html', context)
+        objects = Order.objects.filter(orderStatus = 'QFD')
+
+        #travellingSalesmanAlgorithm([1,4,6,7])
+        context = {
+            'Order': objects,
+        }
+        # Render the HTML template index.html with the data in the context variable
+        return render(request, 'db/dispatcher.html', context)
+    else:
+        return HttpResponseRedirect('/login/');
 
 def travellingSalesmanAlgorithm(clinicLocations):
     clinicAsoc = dict()
@@ -94,8 +126,10 @@ def travellingSalesmanAlgorithm(clinicLocations):
     frontier = []
     hospitalID = 8 
     checker = set()
+    length = 0
     for clinicLocation in clinicLocations:
         if clinicLocation not in checker:
+            length+=1
             checker.add(clinicLocation)
             frontier.append((clinicAsoc[(8, clinicLocation)] , clinicLocation))
     print("hiii")
@@ -103,23 +137,18 @@ def travellingSalesmanAlgorithm(clinicLocations):
 
     n = 0
 
-    
-    length = len(clinicLocations)
     answer = []
-    unique = set()
+    done = set()
     while n<length:
-        print("hiiii")
-        print(frontier)
         node = remove(min(frontier, key = lambda x: x[0]), frontier)
-        unique.add(node)
         answer.append(node[1])
         frontier = []
         checker = set()
+        done.add(node[1])
         for clinicLocation in clinicLocations:
-            if clinicLocation not in checker:
+            if clinicLocation not in checker and clinicLocation not in done:
                 checker.add(clinicLocation)
-                if node[1] != clinicLocation:
-                    frontier.append((clinicAsoc[(node[1], clinicLocation)] , clinicLocation))
+                frontier.append((clinicAsoc[(node[1], clinicLocation)] , clinicLocation))
         n+=1
     
 
@@ -179,51 +208,6 @@ class PDF(views.CsrfExemptMixin, View):
         response['Content-Disposition'] = 'attachment'
         print(response)
         return response
-
-
-    require_json = True
-    def post(self, request, *args, **kwargs):
-
-        orderNo = 0
-        for value in StoredValues.objects.all():
-            orderNo = value.latestOrderNo
-            value.latestOrderNo +=1
-            value.save()
-
-        quantity = 0
-        weight = 0
-        objects = json.loads(request.body)
-        print(objects)
-        items = Item.objects.all();
-
-        i = 0
-        priority = ''
-        for obj in objects:
-            if i == 0:
-                priority = obj['priority']
-                i+=1
-            else:
-                item_asoc_order = Item_Asoc_Order.create(itemNo= int(obj['itemNo']), orderNo = orderNo, qty = obj['quantity'])
-                item_asoc_order.save();
-                quantity += int(obj['quantity'])
-                weight += int(obj['quantity']) * obj['weight']
-
-
-        now = datetime.datetime.now()
-        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight, priority = priority, datetime = now)
-        order.save();
-
-        return self.render_json_response(
-            {"message": "Your contact has been sent!"})
-
-
-
-
-
-
-
-
-
 
 
 #Orders and WP
@@ -294,17 +278,6 @@ class CompleteOrder(views.CsrfExemptMixin, View):
             order.save()
             print(order.orderStatus)
         return HttpResponse('')
-<<<<<<< HEAD
-        
-
-
-
-
-
-
-
-=======
->>>>>>> 9361d8b33d6079b8748808b449061ca5a5dcb936
 
 #Login
 def reg(request):
@@ -343,8 +316,6 @@ class Submit(views.CsrfExemptMixin, View):
                     user[0].save()
                     print("New Username")
                     return HttpResponseRedirect('/login/')
-        
-
             else:
                 print("Old Username")
         return render(request, 'db/signup.html')
@@ -389,11 +360,11 @@ def login(request):
         else:
             user = authenticate(username,password)
             if user:
+                objects = StoredValues.objects.all()
+                for obj in objects:
+                    obj.username = str(username)
+                    obj.save()
                 if user.role=='CM':
-                    objects = StoredValues.objects.all()
-                    for obj in objects:
-                        obj.username = str(username)
-                        obj.save()
                     return HttpResponseRedirect('/order/')
                 elif user.role=='WP':
                     return HttpResponseRedirect('/newWP/')
@@ -444,21 +415,24 @@ def changed(request):
 
 
 def cmorders(request):
-    context_object_name = 'Orders'
+    if(check('CM')):
+        context_object_name = 'Orders'
 
-    objects = StoredValues.objects.all()
-        
-    clinic = ""
-    orders = Order.create(0, None, None)
-    for obj in objects:
-        user = Users.objects.filter(username = obj.username)
-        orders = Order.objects.filter(username = obj.username).exclude(orderStatus = 'DEL')
+        objects = StoredValues.objects.all()
+            
+        clinic = ""
+        orders = Order.create(0, None, None)
+        for obj in objects:
+            user = Users.objects.filter(username = obj.username)
+            orders = Order.objects.filter(username = obj.username).exclude(orderStatus = 'CAN').exclude(orderStatus = 'DEL')
 
-    context = {
-        'Orders': orders,
-    }
-    print(orders)
-    return render(request, 'db/cmorders.html', context)
+        context = {
+            'Orders': orders,
+        }
+        print(orders)
+        return render(request, 'db/cmorders.html', context)
+    else:
+        return HttpResponseRedirect('/login/')
 
 class DeliveredOrder(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
@@ -557,7 +531,6 @@ class Makeorder(views.CsrfExemptMixin, View):
         noOfOrders = 0
         delivery = Delivery.create(deliveryNo, 0, None, 0)
         
-        weight = 0
         n = 0
         for order in orders:
             orderobj = Order.objects.filter(orderNo = int(order['orderNo']))
@@ -575,13 +548,16 @@ class Makeorder(views.CsrfExemptMixin, View):
 
 def dispatcher_deliveries(request):
 
-    context_object_name = 'Delivery'
-    objects = Delivery.objects.all()
+    if(check('DP')):
+        context_object_name = 'Delivery'
+        objects = Delivery.objects.all()
 
-    context = {
-        'Delivery': objects,
-    }
+        context = {
+            'Delivery': objects,
+        }
 
-    # Render the HTML template index.html with the data in the context variable
-    return render(request, 'db/dispatcherdelivery.html', context)
+        # Render the HTML template index.html with the data in the context variable
+        return render(request, 'db/dispatcherdelivery.html', context)
+    else:
+        return HttpResponseRedirect('/login/')
 

@@ -14,8 +14,8 @@
 
         <ul class="nav nav-pills">
 
-          <li class="active bg-primary"><a href="/" color = "white">NEW</a></li>
-          <li><a href="/">DEQUEUED</a></li>
+          <li class="active bg-primary"><a href="/" color = "white">ORDERS</a></li>
+          <li><a href="/dispatcherdelivery">DELIVERY</a></li>
 
         </ul>
 
@@ -97,7 +97,7 @@
                 </div>
 
                 <div class = "col-md-2 col-sm-2 col-xs-2 pt-3 text-center" >
-                  <button class = "btn btn-secondary" style = "border:0;font-size: 15px;padding:10px;" onclick="myFunction(this.id)" id = "{{order.orderNo}}"><strong>SELECT</strong></button>
+                  <button class = "btn btn-secondary" style = "border:0;font-size: 15px;padding:10px;" onclick="myFunction(this.id,{{order.weight}})" id = "{{order.orderNo}}"><strong>SELECT</strong></button>
                 </div>
               
             </div>
@@ -119,20 +119,25 @@
     <script type="text/javascript">
     var dict = {};
     first = 0;
-    function myFunction(clicked_id, status, priority, clinicLocation) {     
+    weight = 1.2;
+    function myFunction(clicked_id, orderweight) {     
 
-
+        weight += orderweight;
         htmltext =
-        '<div class = "ml-3"> ORDER NUMBER : '+ clicked_id +' ADDED to DELIVERY</div><br>';
-
+        '<div class = "ml-3"> ORDER NUMBER : '+ clicked_id +' ADDED to DELIVERY</div>';
+        $('#Order'+clicked_id).remove();
         if(first == 0)
         {
           first = 1
           htmltext += '<div class = "text-center" id = "makeorderbutton"><button class = "btn btn-secondary" onclick = sendData('+clicked_id+') style = "color:white;background-color:#AD441F;padding:13px 40px; font-size:15px;"><strong>MAKE ORDER</strong></button></div>'
           $('#append').append(htmltext);
+          $('<div id = "weight"><hr>TOTAL WEIGHT : ' + weight + '</div><br>').insertBefore('#makeorderbutton');
         }  
         else if(dict[clicked_id] != 1)
-          $(htmltext).insertBefore('#makeorderbutton');
+        {
+          $(htmltext).insertBefore('#weight');
+          $('#weight').html('<hr>TOTAL WEIGHT : ' + weight);
+        }
 
         dict[clicked_id] = 1;
 
@@ -163,7 +168,9 @@
 
     function sendData(clicked_id)
     {
-      
+      weight = 1.2;
+      first = 0;
+      $('#append').html('');
       url = "makeorder/";
       data = [];
       i = 0;
