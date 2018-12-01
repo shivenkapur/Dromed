@@ -1,5 +1,4 @@
 
-from django.core.mail import send_mail
 import datetime
 from django.shortcuts import render
 from db.models import Item, Order, Item_Asoc_Order, Users, Delivery, Order_Asoc_Delivery, StoredValues, Clinic_Asoc_Clinic
@@ -18,8 +17,9 @@ import json
 from django.contrib import auth, messages
 from django.contrib.auth.models import User
 # Create your views here.
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from random import randint
+import requests
 import csv
 
 
@@ -29,11 +29,7 @@ def check(role):
         username = value.username
     users = Users.objects.filter(username = username)
 
-    flag = False
-    for user in users:
-        if(user.role == role):
-            flag = True
-    return flag
+
 
 def item_view(request):
     if(check('CM')):
@@ -55,12 +51,12 @@ def new_WP(request):
         context_object_name = 'Items'
         objects = Item.objects.all()
 
-        context = {
-            'Items': objects,
-        }
-
-        order = Order.objects.filter().order_by('priority')
-        print(order)
+        context_object_name = 'Order'
+    
+        dict = {"High" : 3, "Medium" : 2, "Low" : 1, "" : 0}
+        
+        order = sorted(Order.objects.all(), key = lambda x: dict[x.priority], reverse = True)
+        
         context = {
             'Order': order,
         }
@@ -132,7 +128,6 @@ def travellingSalesmanAlgorithm(clinicLocations):
             length+=1
             checker.add(clinicLocation)
             frontier.append((clinicAsoc[(8, clinicLocation)] , clinicLocation))
-    print("hiii")
     print(frontier)
 
     n = 0
@@ -208,7 +203,6 @@ class PDF(views.CsrfExemptMixin, View):
         response['Content-Disposition'] = 'attachment'
         print(response)
         return response
-
 
 #Orders and WP
 
@@ -445,9 +439,9 @@ class DeliveredOrder(views.CsrfExemptMixin, View):
                 print(order.orderStatus)
                 order.orderStatus = 'DEL'
                 order.save()
-        
 
         return HttpResponse('')
+
 class CancelOrder(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
         orderNo = request.body
@@ -472,7 +466,10 @@ class Dispatch(views.CsrfExemptMixin, View):
             for selectedorder in selectedorders:
                 selectedorder.orderStatus = 'DIS'
                 selectedorder.save()
-                print(selectedorder.orderStatus)
+                msg = EmailMessage('Order Dispatched', 'Your order '+ str(selectedorder.orderNo) +' has been dispatched' ,'',[i.emailID for i in Users.objects.filter(username = selectedorder.username)])
+                requests.get('http://127.0.0.1:8000/warehouse/pdf/?'+str(selectedorder.orderNo))
+                msg.attach_file('db/shipping_label.pdf')
+                msg.send()
         delivery.delete()
 
         return HttpResponse('')
