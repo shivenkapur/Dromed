@@ -98,7 +98,8 @@ class Order(models.Model):
     ('QFD', 'Queued for Dispatch'),
     ('QFD2', 'Queued for Dispatch2'),
     ('DIS', 'Dispatched'),
-    ('DEL', 'Delivered'))
+    ('DEL', 'Delivered'),
+    ('CAN', 'Cancelled'))
 
     TYPE_SET = (
     ('N', 'New'),
@@ -108,9 +109,21 @@ class Order(models.Model):
     orderNo = models.IntegerField()
     assigned = models.BooleanField(default = False)
     priority = models.CharField(max_length=200, choices = PRIORITY_SET, default = U)
-    orderStatus = models.CharField(max_length=200, choices = ORDER_STATUS, default = 'QFP')
+    orderStatus = models.CharField(max_length=200, choices = ORDER_STATUS, default = 'CAN')
     weight = models.FloatField(blank = True, null = True) 
-    datetime= models.DateField(blank = True, null = True) 
+    date = models.DateField(blank = True, null = True)
+    time = models.TimeField(blank = True, null = True)
+    datePBW = models.DateField(blank = True, null = True)
+    timePBW = models.TimeField(blank = True, null = True)
+    dateQFD = models.DateField(blank = True, null = True)
+    timeQFD = models.TimeField(blank = True, null = True)
+    dateDIS= models.DateField(blank = True, null = True)
+    timeDIS = models.TimeField(blank = True, null = True)
+    dateDEL= models.DateField(blank = True, null = True)
+    timeDEL = models.TimeField(blank = True, null = True) 
+    #date_string = models.CharField(max_length=200, default = 'N')
+    #time_string = models.CharField(max_length=200, default = 'N')
+
     noOfItems = models.IntegerField(blank = True, null = True)
     orderType = models.CharField(max_length=200, choices = TYPE_SET, default = 'N')
 
@@ -119,9 +132,13 @@ class Order(models.Model):
     deliveryNo = models.ForeignKey(Delivery, on_delete=models.SET_NULL, blank = True, null = True)
 
     @classmethod
-    def create(cls, orderNo, datetime,clinicManager_location, noOfItems = 0, priority = L, orderStatus = 'QFP', weight = 0, username = 'Shiven'):
-        order = cls(orderNo = orderNo, noOfItems = noOfItems, clinicManager_location = clinicManager_location,priority = priority, orderStatus = orderStatus, weight = weight, datetime = datetime, username = username);
+    def create(cls, orderNo,clinicManager_location, noOfItems = 0, priority = L, orderStatus = 'QFP', weight = 0, username = 'Shiven'):
+        order = cls(orderNo = orderNo, noOfItems = noOfItems, clinicManager_location = clinicManager_location,priority = priority, orderStatus = orderStatus, weight = weight, username = username);
         return order
+
+    #def datetime(self):
+    #    self.date_string = str(self.date);
+    #    self.time_string = str(self.time);
 
     def __str__(self):
         return str(self.orderNo)

@@ -29,6 +29,12 @@ def check(role):
         username = value.username
     users = Users.objects.filter(username = username)
 
+    for user in users:
+        if(user.role == role):
+            return True
+    return False
+
+
 
 
 def item_view(request):
@@ -48,8 +54,6 @@ def item_view(request):
 def new_WP(request):
 
     if(check('WP')):
-        context_object_name = 'Items'
-        objects = Item.objects.all()
 
         context_object_name = 'Order'
     
@@ -238,10 +242,17 @@ class ContactSendView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, Vie
 
 
         user = Users.objects.filter(username = username)
-        now = datetime.datetime.now()
+        
         print(user[0].clinic)
-        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight,clinicManager_location =  user[0].clinic, priority = priority, datetime = now, username = username)
+        order = Order.create(orderNo = orderNo, noOfItems = quantity, weight = weight,clinicManager_location =  user[0].clinic, priority = priority, username = username)
+        order.date = datetime.datetime.now()
+        order.time = datetime.datetime.now()
+        print()
         order.save();
+
+
+        print(order.date)
+        print(order.time)
 
         return self.render_json_response(
             {"message": "Your contact has been sent!"})
@@ -253,10 +264,10 @@ class DequeueOrder(views.CsrfExemptMixin, View):
         
         orders = Order.objects.filter(orderNo=int(orderNo))
         for order in orders:
-            print(order.orderStatus)
             order.orderStatus = 'PBW'
+            order.datePBW = datetime.datetime.now()
+            order.timePBW = datetime.datetime.now()
             order.save()
-            print(order.orderStatus)
 
         return HttpResponse('')
 
@@ -267,10 +278,10 @@ class CompleteOrder(views.CsrfExemptMixin, View):
         print(orderNo)
         orders = Order.objects.filter(orderNo=int(orderNo))
         for order in orders:
-            print(order.orderStatus)
             order.orderStatus = 'QFD'
+            order.dateQFD = datetime.datetime.now()
+            order.timeQFD = datetime.datetime.now()
             order.save()
-            print(order.orderStatus)
         return HttpResponse('')
 
 #Login
@@ -436,7 +447,8 @@ class DeliveredOrder(views.CsrfExemptMixin, View):
         orders = Order.objects.filter(orderNo=int(orderNo))
         for order in orders:
             if(order.orderStatus == 'DIS'):
-                print(order.orderStatus)
+                order.dateDEL = datetime.datetime.now()
+                order.timeDEL = datetime.datetime.now()
                 order.orderStatus = 'DEL'
                 order.save()
 
@@ -454,7 +466,7 @@ class CancelOrder(views.CsrfExemptMixin, View):
                 order.save()
         
 
-        return HttpResponse('')
+        return render(request , 'db/cmorders.html')
 
 class Dispatch(views.CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
@@ -465,6 +477,10 @@ class Dispatch(views.CsrfExemptMixin, View):
             selectedorders = Order.objects.filter(orderNo=int(order.orderNo))
             for selectedorder in selectedorders:
                 selectedorder.orderStatus = 'DIS'
+
+                selectedorder.dateDIS = datetime.datetime.now()
+                selectedorder.timeDIS = datetime.datetime.now()
+
                 selectedorder.save()
                 msg = EmailMessage('Order Dispatched', 'Your order '+ str(selectedorder.orderNo) +' has been dispatched' ,'',[i.emailID for i in Users.objects.filter(username = selectedorder.username)])
                 requests.get('http://127.0.0.1:8000/warehouse/pdf/?'+str(selectedorder.orderNo))

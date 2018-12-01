@@ -32,7 +32,7 @@
                 </div>
                 
                 <div class="col-md-3 col-sm-3 col-xs-3 text-center">
-                  <button type = "button" class = "btn btn-secondary" style = "border:0;font-size: 15px;" id = '{{order.orderNo}}' onclick="cancel(this.id)"><strong>CANCEL</strong></button>
+                  <a href = ""><button type = "button" class = "btn btn-secondary" style = "border:0;font-size: 15px;" id = '{{order.orderNo}}' onclick="cancel(this.id)"><strong>CANCEL</strong></button></a>
                 </div>
 
               </div>
@@ -115,6 +115,7 @@
 
       $.post(url, data)
       .done(function() {
+
           
       })
       .fail(function() {
@@ -131,6 +132,7 @@
 
       $.post(url, data)
       .done(function() {
+
           
       })
       .fail(function() {
